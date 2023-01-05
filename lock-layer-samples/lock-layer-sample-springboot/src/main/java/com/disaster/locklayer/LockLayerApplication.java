@@ -23,8 +23,8 @@ public class LockLayerApplication {
     @Bean
     public ApplicationRunner applicationRunner1(){
         return args -> {
-            lock.lock();
-            lock.lockException();
+//            lock.lock();
+//            lock.lockException();
         };
     }
 

@@ -4,25 +4,26 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <modules>
-        <module>lockLayer-layer-sample-core</module>
-        <module>lockLayer-layer-sample-spring</module>
-        <module>lockLayer-layer-sample-springboot</module>
+        <module>lock-layer-sample-core</module>
+        <module>lock-layer-sample-spring</module>
+        <module>lock-layer-sample-springboot</module>
     </modules>
 
     <parent>
-        <artifactId>lockLayer-layer</artifactId>
+        <artifactId>lock-layer</artifactId>
         <groupId>io.github.disaster1-tesk</groupId>
         <version>${revision}</version>
     </parent>
 
-    <groupId>io.github.disaster1-tesk</groupId>
-    <artifactId>lockLayer-layer-samples</artifactId>
-    <version>${revision}</version>
-
     <packaging>pom</packaging>
 
-    <name>lockLayer-layer-samples</name>
-    <description>lockLayer-layer的案例包</description>
+    <groupId>io.github.disaster1-tesk</groupId>
+    <artifactId>lock-layer-samples</artifactId>
+    <version>${revision}</version>
+
+
+    <name>lock-layer-samples</name>
+    <description>lock-layer的案例包</description>
     <url>https://gitee.com/disaster_-camp/fast-mq</url>
 
     <properties>

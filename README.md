@@ -35,7 +35,7 @@
 <dependency>
     <groupId>io.github.disaster1-tesk</groupId>
     <artifactId>lock-layer-spring-boot-starter</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
 </dependency>
 ```
 ### 🛁 使用

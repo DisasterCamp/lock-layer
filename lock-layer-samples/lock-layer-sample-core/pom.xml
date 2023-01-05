@@ -5,24 +5,25 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>lockLayer-layer-samples</artifactId>
+        <artifactId>lock-layer-samples</artifactId>
         <groupId>io.github.disaster1-tesk</groupId>
         <version>${revision}</version>
     </parent>
 
     <groupId>io.github.disaster1-tesk</groupId>
-    <artifactId>lockLayer-layer-sample-core</artifactId>
-    <version>1.1.0</version>
+    <artifactId>lock-layer-sample-core</artifactId>
+    <version>${revision}</version>
 
-    <name>lockLayer-layer-sample-core</name>
-    <description>lockLayer-layer原生java使用案例</description>
+    <name>lock-layer-sample-core</name>
+    <description>lock-layer原生java使用案例</description>
     <url>https://gitee.com/disaster_-camp/fast-mq</url>
 
 
     <dependencies>
         <dependency>
             <groupId>io.github.disaster1-tesk</groupId>
-            <artifactId>lockLayer-layer-core</artifactId>
+            <artifactId>lock-layer-core</artifactId>
+            <version>${revision}</version>
         </dependency>
     </dependencies>
 

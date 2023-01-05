@@ -5,18 +5,17 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>io.github.disaster1-tesk</groupId>
-        <artifactId>lockLayer-layer</artifactId>
+        <artifactId>lock-layer</artifactId>
         <version>${revision}</version>
     </parent>
 
     <groupId>io.github.disaster1-tesk</groupId>
-    <artifactId>lockLayer-layer-core</artifactId>
+    <artifactId>lock-layer-core</artifactId>
     <version>${revision}</version>
 
-    <name>lockLayer-layer-core</name>
-    <description>lockLayer-layer的核心功能包</description>
+    <name>lock-layer-core</name>
+    <description>lock-layer的核心功能包</description>
     <url>https://gitee.com/disaster_-camp/fast-mq</url>
-
 
     <dependencies>
         <dependency>

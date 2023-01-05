@@ -23,7 +23,7 @@ public class LoggerUtil {
     public static void printlnLog(Class aClass, String msg) {
         if (loggerCache.containsKey(aClass.getName())) {
             Logger log = loggerCache.get(aClass.getName());
-            if (log.isDebugEnabled()) {
+            if (log.isInfoEnabled()||log.isDebugEnabled()||log.isErrorEnabled()||log.isWarnEnabled()) {
                 log.info(msg);
             } else {
                 System.out.println(msg);
@@ -31,7 +31,7 @@ public class LoggerUtil {
         }else {
             Logger log = LoggerFactory.getLogger(aClass);
             loggerCache.put(aClass.getName(), log);
-            if (log.isDebugEnabled()) {
+            if (log.isInfoEnabled()||log.isDebugEnabled()||log.isErrorEnabled()||log.isWarnEnabled()) {
                 log.info(msg);
             } else {
                 System.out.println(msg);

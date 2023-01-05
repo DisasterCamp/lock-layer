@@ -4,18 +4,19 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>lockLayer-layer-samples</artifactId>
+        <artifactId>lock-layer-samples</artifactId>
         <groupId>io.github.disaster1-tesk</groupId>
         <version>${revision}</version>
     </parent>
 
     <groupId>io.github.disaster1-tesk</groupId>
-    <artifactId>lockLayer-layer-sample-spring</artifactId>
+    <artifactId>lock-layer-sample-spring</artifactId>
     <version>${revision}</version>
 
-    <name>lockLayer-layer-sample-spring</name>
-    <description>lockLayer-layer spring使用案例</description>
+    <name>lock-layer-sample-spring</name>
+    <description>lock-layer spring使用案例</description>
     <url>https://gitee.com/disaster_-camp/fast-mq</url>
+
 
     <dependencies>
         <dependency>

@@ -4,18 +4,19 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>lockLayer-layer</artifactId>
+        <artifactId>lock-layer</artifactId>
         <groupId>io.github.disaster1-tesk</groupId>
         <version>${revision}</version>
     </parent>
 
     <groupId>io.github.disaster1-tesk</groupId>
-    <artifactId>lockLayer-layer-spring-boot-starter</artifactId>
+    <artifactId>lock-layer-spring-boot-starter</artifactId>
     <version>${revision}</version>
 
-    <name>lockLayer-layer-spring-boot-starter</name>
-    <description>lockLayer-layer集成springboot</description>
+    <name>lock-layer-spring-boot-starter</name>
+    <description>lock-layer集成springboot</description>
     <url>https://gitee.com/disaster_-camp/fast-mq</url>
+
 
     <dependencies>
         <dependency>
@@ -32,7 +33,7 @@
         </dependency>
         <dependency>
             <groupId>io.github.disaster1-tesk</groupId>
-            <artifactId>lockLayer-layer-core</artifactId>
+            <artifactId>lock-layer-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
