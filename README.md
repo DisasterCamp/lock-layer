@@ -79,6 +79,7 @@ Thread thread = new Thread(() -> {
 ##### 1.配置
 
 ```yaml
+#lock layer只是复用了spring-redis的配置并不会影响其spring-redis 的正常使用
 spring:
   redis:
     port: 6379
@@ -95,7 +96,7 @@ spring:
 lock:
   layer:
     declaration:
-      enable: true #此配置用来开启声明式加锁功能
+      enable: true #此配置用来开启声明式加锁功能，默认为false
 ```
 ##### 2.使用
 
@@ -108,20 +109,25 @@ lock:
 private LockLayer redisLockLayer;
 ```
 
-2.声明式使用
+###### 2.声明式使用
 
 ```java
 @Component
 public class Lock {
 
-    @LockLayer(key = "test_key")
-    public void lock(){
+    @LockLayer(key = "test_key", expireTime = 100)
+    public void lock() {
 
     }
-  
-		#当方法里面抛异常lack layer会自动释放锁
-    @LockLayer(key = "test_key")
-    public void lockException(){
+
+    @LockLayer(key = "test_key", expireTime = 100, reentryLock = true)
+    public void retryLock() {
+
+    }
+
+ #当注解标注的方法中抛异常，lock layer 会自动释放锁
+    @LockLayer(key = "test_key", expireTime = 10)
+    public void lockException() {
         throw new RuntimeException();
     }
 }
