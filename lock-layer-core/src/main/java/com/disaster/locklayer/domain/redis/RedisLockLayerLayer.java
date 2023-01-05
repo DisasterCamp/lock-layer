@@ -29,7 +29,7 @@ import java.util.concurrent.locks.LockSupport;
 public class RedisLockLayerLayer implements LockLayer {
     private LockManager lockManager;
 
-    private LockService lockService = new LockServiceImpl();
+    private LockService lockService;
 
 
     /**
@@ -39,6 +39,7 @@ public class RedisLockLayerLayer implements LockLayer {
      */
     public RedisLockLayerLayer(LockManager lockManager) {
         this.lockManager = lockManager;
+        this.lockService = new LockServiceImpl();
     }
 
 

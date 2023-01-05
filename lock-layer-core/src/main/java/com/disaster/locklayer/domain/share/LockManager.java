@@ -3,20 +3,14 @@ package com.disaster.locklayer.domain.share;
 import com.disaster.locklayer.infrastructure.utils.LoggerUtil;
 import com.disaster.locklayer.infrastructure.utils.SystemClock;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.disaster.locklayer.infrastructure.annotations.Lock;
 import com.disaster.locklayer.infrastructure.config.LockConfig;
 import com.disaster.locklayer.infrastructure.constant.Constants;
-import org.reflections.Reflections;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -27,16 +21,10 @@ import java.util.concurrent.Executors;
  * @version 1.0
  */
 public class LockManager {
-    private Logger log = LoggerFactory.getLogger(LockManager.class);
     /**
      * Configuration class for locks
      */
     private LockConfig lockConfig;
-
-    /**
-     * Annotated collection of methods
-     */
-    private Set<Method> methodSet;
 
     /**
      * The constant period.
@@ -97,8 +85,6 @@ public class LockManager {
     public static LockManager create() {
         LockManager lockManager = new LockManager();
         lockManager.setLockConfig(LockConfig.build());
-        Reflections reflections = lockManager.getLockConfig().getReflections();
-        lockManager.setMethodSet(reflections.getMethodsAnnotatedWith(Lock.class));
         return lockManager;
     }
 
@@ -111,8 +97,6 @@ public class LockManager {
     public static LockManager create(LockConfig lockConfig) {
         LockManager lockManager = new LockManager();
         lockManager.setLockConfig(lockConfig);
-        Reflections reflections = lockManager.getLockConfig().getReflections();
-        lockManager.setMethodSet(reflections.getMethodsAnnotatedWith(Lock.class));
         return lockManager;
     }
 
@@ -126,14 +110,6 @@ public class LockManager {
         return lockConfig;
     }
 
-    /**
-     * Gets method set.
-     *
-     * @return the method set
-     */
-    public Set<Method> getMethodSet() {
-        return methodSet;
-    }
 
     /**
      * Sets lock config.
@@ -144,14 +120,6 @@ public class LockManager {
         this.lockConfig = lockConfig;
     }
 
-    /**
-     * Sets method set.
-     *
-     * @param methodSet the method set
-     */
-    public void setMethodSet(Set<Method> methodSet) {
-        this.methodSet = methodSet;
-    }
 
     /**
      * Gets lock timer entity concurrent hash map.

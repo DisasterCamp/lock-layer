@@ -4,31 +4,23 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>lock-layer</artifactId>
+        <artifactId>lockLayer-layer</artifactId>
         <groupId>io.github.disaster1-tesk</groupId>
         <version>${revision}</version>
     </parent>
 
     <groupId>io.github.disaster1-tesk</groupId>
-    <artifactId>lock-layer-spring-boot-starter</artifactId>
+    <artifactId>lockLayer-layer-spring-boot-starter</artifactId>
     <version>${revision}</version>
 
-    <name>lock-layer-starter</name>
-    <!-- FIXME change it to the project's website -->
-    <url>http://www.example.com</url>
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.7</maven.compiler.target>
-    </properties>
+    <name>lockLayer-layer-spring-boot-starter</name>
+    <description>lockLayer-layer集成springboot</description>
+    <url>https://gitee.com/disaster_-camp/fast-mq</url>
 
     <dependencies>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.11</version>
-            <scope>test</scope>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -39,8 +31,16 @@
             <artifactId>spring-boot-starter</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.redisson</groupId>
-            <artifactId>redisson-spring-boot-starter</artifactId>
+            <groupId>io.github.disaster1-tesk</groupId>
+            <artifactId>lockLayer-layer-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
     </dependencies>
 

@@ -3,31 +3,27 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <modules>
-        <module>lockLayer-layer-sample-core</module>
-        <module>lockLayer-layer-sample-spring</module>
-        <module>lockLayer-layer-sample-springboot</module>
-    </modules>
-
     <parent>
-        <artifactId>lockLayer-layer</artifactId>
+        <artifactId>lockLayer-layer-samples</artifactId>
         <groupId>io.github.disaster1-tesk</groupId>
         <version>${revision}</version>
     </parent>
 
     <groupId>io.github.disaster1-tesk</groupId>
-    <artifactId>lockLayer-layer-samples</artifactId>
+    <artifactId>lockLayer-layer-sample-spring</artifactId>
     <version>${revision}</version>
 
-    <packaging>pom</packaging>
-
-    <name>lockLayer-layer-samples</name>
-    <description>lockLayer-layer的案例包</description>
+    <name>lockLayer-layer-sample-spring</name>
+    <description>lockLayer-layer spring使用案例</description>
     <url>https://gitee.com/disaster_-camp/fast-mq</url>
 
-    <properties>
-        <!-- 跳过部署 -->
-        <maven.deploy.skip>true</maven.deploy.skip>
-    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.11</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
 </project>

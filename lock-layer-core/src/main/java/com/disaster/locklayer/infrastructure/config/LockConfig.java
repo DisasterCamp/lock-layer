@@ -20,7 +20,6 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
  */
 public class LockConfig {
     private JedisClient client;
-    private Reflections reflections;
     private ScheduledExecutorService schedule;
 
     /**
@@ -28,13 +27,6 @@ public class LockConfig {
      */
     public LockConfig() {
         this.client = new JedisClient(new JedisPool());
-        this.reflections = new Reflections(new ConfigurationBuilder()
-                .forPackages("com.disaster.locklayer")
-                .addScanners(new SubTypesScanner())
-                .addScanners(new MethodAnnotationsScanner())
-                .addScanners(new MethodParameterScanner())
-                .addScanners(new TypeAnnotationsScanner())
-                .addScanners(new TypeElementsScanner()));
         this.schedule = new ScheduledThreadPoolExecutor(2 * Runtime.getRuntime().availableProcessors() + 1,
                 new BasicThreadFactory.Builder().namingPattern("redisLock-schedule-pool-%d").daemon(true).build());
     }
@@ -65,26 +57,6 @@ public class LockConfig {
      */
     public LockConfig setClient(JedisClient client) {
         this.client = client;
-        return this;
-    }
-
-    /**
-     * Gets reflections.
-     *
-     * @return the reflections
-     */
-    public Reflections getReflections() {
-        return reflections;
-    }
-
-    /**
-     * Sets reflections.
-     *
-     * @param reflections the reflections
-     * @return the reflections
-     */
-    public LockConfig setReflections(Reflections reflections) {
-        this.reflections = reflections;
         return this;
     }
 

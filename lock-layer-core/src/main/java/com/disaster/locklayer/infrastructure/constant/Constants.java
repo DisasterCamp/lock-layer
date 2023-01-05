@@ -53,5 +53,9 @@ public interface Constants {
      */
     String UNLOCK_CHANNEL = "unlock_channel";
 
+    /**
+     * configuration prefix
+     */
+    public static String CONFIG_PREFIX = "lock.layer.declaration";
 
 }

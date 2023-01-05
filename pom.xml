@@ -5,19 +5,19 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.github.disaster1-tesk</groupId>
-    <artifactId>lock-layer</artifactId>
+    <artifactId>lockLayer-layer</artifactId>
     <version>${revision}</version>
 
     <packaging>pom</packaging>
 
     <modules>
-        <module>lock-layer-dependencies</module>
-        <module>lock-layer-core</module>
-        <module>lock-layer-samples</module>
-        <module>lock-layer-spring-boot-starter</module>
+        <module>lockLayer-layer-dependencies</module>
+        <module>lockLayer-layer-core</module>
+        <module>lockLayer-layer-samples</module>
+        <module>lockLayer-layer-spring-boot-starter</module>
     </modules>
 
-    <name>lock-layer</name>
+    <name>lockLayer-layer</name>
     <url>https://gitee.com/disaster_-camp</url>
     <description>分布式锁-项目由disaster_-camp维护</description>
 
@@ -31,9 +31,9 @@
     </licenses>
 
     <scm>
-        <connection>scm:git@github.com:disaster1-tesk/lock-layer.git</connection>
-        <developerConnection>scm:git@github.com:disaster1-tesk/lock-layer.git</developerConnection>
-        <url>git@github.com:disaster1-tesk/lock-layer.git</url>
+        <connection>scm:git@github.com:disaster1-tesk/lockLayer-layer.git</connection>
+        <developerConnection>scm:git@github.com:disaster1-tesk/lockLayer-layer.git</developerConnection>
+        <url>git@github.com:disaster1-tesk/lockLayer-layer.git</url>
     </scm>
 
     <distributionManagement>
@@ -79,7 +79,7 @@
         <dependencies>
             <dependency>
                 <groupId>io.github.disaster1-tesk</groupId>
-                <artifactId>lock-layer-dependencies</artifactId>
+                <artifactId>lockLayer-layer-dependencies</artifactId>
                 <version>${revision}</version>
                 <type>pom</type>
                 <scope>import</scope>

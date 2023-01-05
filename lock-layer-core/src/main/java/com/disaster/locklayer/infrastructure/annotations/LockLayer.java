@@ -7,8 +7,10 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface Lock {
-    String key() default "lock:layer:default_key";
+public @interface LockLayer {
+    String key() default "default_key";
+
+    boolean reentryLock() default false;
 
     int expireTime() default 60;
 }
