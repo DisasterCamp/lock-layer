@@ -1,5 +1,6 @@
 package com.disaster.locklayer.domain.share;
 
+import com.disaster.locklayer.infrastructure.utils.LoggerUtil;
 import com.disaster.locklayer.infrastructure.utils.SystemClock;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.disaster.locklayer.infrastructure.annotations.Lock;
@@ -12,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -73,13 +75,10 @@ public class LockManager {
                     LockHeartBeatEntity value = next.getValue();
                     if ((value.getExpireCount().get() >= Constants.MAX_EXPIRE_COUNT * (value.getReentryCount().get() > 0 ? value.getReentryCount().get() : 1))
                             || (value.getLockTime() - SystemClock.now() >= Constants.MAX_EXPIRE_TIME)) {
+                        if (Objects.isNull(value.getFuture())) throw new RuntimeException("future is null");
                         Boolean shutdown = value.shutdown();
                         if (shutdown) {
-                            if (log.isDebugEnabled()) {
-                                log.info("key = {},If the number of consecutive times is exceeded, the lock is released", next.getKey());
-                            } else {
-                                System.out.println(String.format("key = %s,If the number of consecutive times is exceeded, the lock is released", next.getKey()));
-                            }
+                            LoggerUtil.printlnLog(LockManager.class,String.format("key = %s,If the number of consecutive times is exceeded, the lock is released", next.getKey()));
                             iterator.remove();
                         } else {
                             throw new RuntimeException(value.getFuture().isDone() + "RetryLockMonitorThread is");

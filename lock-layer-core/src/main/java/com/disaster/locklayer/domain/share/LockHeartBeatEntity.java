@@ -1,5 +1,6 @@
 package com.disaster.locklayer.domain.share;
 
+import com.disaster.locklayer.infrastructure.utils.MacUtil;
 import com.disaster.locklayer.infrastructure.utils.SystemClock;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -29,9 +30,9 @@ public class LockHeartBeatEntity {
     private volatile AtomicBoolean shutdown = new AtomicBoolean(false);
 
     /**
-     * currentThread
+     * threadIdentification
      */
-    private volatile Thread thread = Thread.currentThread();
+    private volatile String threadIdentification = MacUtil.getCurrentIpLocalMac() + ":" + Thread.currentThread().getId();
 
     /**
      * reentry count
@@ -42,7 +43,6 @@ public class LockHeartBeatEntity {
      * first lock time
      */
     private volatile Long lockTime = SystemClock.now();
-
 
 
     /**
@@ -132,7 +132,7 @@ public class LockHeartBeatEntity {
      * @return the boolean
      */
     public Boolean isCurrentThread() {
-        return this.thread.equals(Thread.currentThread());
+        return this.threadIdentification.equals(MacUtil.getCurrentIpLocalMac() + ":" + Thread.currentThread().getId());
     }
 
     /**
@@ -186,11 +186,21 @@ public class LockHeartBeatEntity {
     }
 
     /**
-     * Gets thread.
+     * Gets thread identification.
      *
-     * @return the thread
+     * @return the thread identification
      */
-    public Thread getThread() {
-        return thread;
+    public String getThreadIdentification() {
+        return threadIdentification;
+    }
+
+    /**
+     * Sets thread identification.
+     *
+     * @param threadIdentification the thread identification
+     */
+    public LockHeartBeatEntity setThreadIdentification(String threadIdentification) {
+        this.threadIdentification = threadIdentification;
+        return this;
     }
 }

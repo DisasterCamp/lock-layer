@@ -7,6 +7,7 @@ import com.disaster.locklayer.domain.share.LockManager;
 import com.disaster.locklayer.domain.share.LockHeartBeatEntity;
 import com.disaster.locklayer.infrastructure.constant.Constants;
 import com.disaster.locklayer.infrastructure.persistence.LockLayer;
+import com.disaster.locklayer.infrastructure.utils.LoggerUtil;
 import com.disaster.locklayer.infrastructure.utils.LuaUtils;
 import com.disaster.locklayer.infrastructure.utils.SystemClock;
 import com.google.common.collect.Lists;
@@ -29,8 +30,6 @@ public class RedisLockLayerLayer implements LockLayer {
     private LockManager lockManager;
 
     private LockService lockService = new LockServiceImpl();
-
-    private Logger log = LoggerFactory.getLogger(RedisLockLayerLayer.class);
 
 
     /**
@@ -80,13 +79,19 @@ public class RedisLockLayerLayer implements LockLayer {
 
 
     private Object _lock(LockEntity lockEntity) {
-        Object result = jedis().eval(LuaUtils.getLockLuaStr(), Collections.singletonList(lockEntity.get_key()), Lists.newArrayList(lockEntity.getKey(),lockEntity.getExpireTime().toString()));
+        Object result = jedis().eval(LuaUtils.getLockLuaStr(), Collections.singletonList(lockEntity.get_key()), Lists.newArrayList(lockEntity.getKey(), lockEntity.getExpireTime().toString()));
         if (result.equals(Constants.LUA_RES_OK)) {
             //heatBeat
             lockService.allocFuture(executorService(), lockTimerEntityMap(), lockManager, lockEntity);
+            LoggerUtil.printlnLog(this.getClass(), String.format("thread = %s,key = %s,lock success", Thread.currentThread().getName(), lockEntity.getKey()));
         } else {
             //retryLock
-            lockService.retryLock(lockTimerEntityMap(), lockManager, lockEntity);
+            boolean b = lockService.retryLock(lockTimerEntityMap(), lockManager, lockEntity);
+            if (b) {
+                //heatBeat
+                lockService.allocFuture(executorService(), lockTimerEntityMap(), lockManager, lockEntity);
+                return Constants.LUA_RES_OK;
+            }
         }
         return result;
     }

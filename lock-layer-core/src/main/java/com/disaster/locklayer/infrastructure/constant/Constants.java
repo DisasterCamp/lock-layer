@@ -9,44 +9,47 @@ package com.disaster.locklayer.infrastructure.constant;
  */
 public interface Constants {
     /**
-     * 默认锁key
+     * Default lock key
      */
     String DEFAULT_KEY = "lock:layer:default_key";
 
     /**
-     * 锁的默认过期时间
+     * Default expiration time of the lock
      */
     Integer KEY_EXPIRE = 30;
 
     /**
-     * 续锁最长时间
+     * Maximum retry time
+     */
+    Integer MAX_RETRY_TIME = 30 * 1000;
+
+    /**
+     * Maximum duration of lock renewal
      */
     Long MAX_EXPIRE_TIME = 60l;
 
     /**
-     * 最大续锁次数
+     * Maximum number of locks to be renewed
      */
     Integer MAX_EXPIRE_COUNT = 3;
 
     /**
-     * 锁前缀
+     * Lock prefix
      */
     String KEY_PREFIX = "lock:layer:prefix:";
 
-
-
     /**
-     * 加锁返回值
+     * Locked return value
      */
     String RES_OK = "OK";
 
     /**
-     * lua加锁返回值
+     * lua lock return value
      */
     Long LUA_RES_OK = 1l;
 
     /**
-     * 锁重试的订阅/消费通道
+     * Lock retry subscription consumption channel
      */
     String UNLOCK_CHANNEL = "unlock_channel";
 
