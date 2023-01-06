@@ -12,7 +12,7 @@ public class RedisLockLayerLayerLayerTest {
 
     @Before
     public void init() {
-        lockManager = LockManager.create(LockConfig.build().setClient(new JedisClient(new JedisPool("139.196.154.217", 6379, null, "123456"))));
+        lockManager = LockManager.create(LockConfig.build().setClient(new JedisClient(new JedisPool("127.0.0.1", 6379, null, "123456"))));
         redisLockLayer = new RedisLockLayerLayer(lockManager);
     }
 
@@ -38,7 +38,7 @@ public class RedisLockLayerLayerLayerTest {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-        },"thread1");
+        }, "thread1");
         Thread thread1 = new Thread(() -> {
             try {
                 Thread.sleep(1000);
@@ -46,11 +46,10 @@ public class RedisLockLayerLayerLayerTest {
                 e.printStackTrace();
             }
             redisLockLayer.tryLock("test_key");
-        },"thread2");
+        }, "thread2");
         thread.start();
         thread1.start();
         while (true) {
-
         }
     }
 

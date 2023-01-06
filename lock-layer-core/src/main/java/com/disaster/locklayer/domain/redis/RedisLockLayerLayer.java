@@ -5,20 +5,15 @@ import com.disaster.locklayer.domain.service.impl.LockServiceImpl;
 import com.disaster.locklayer.domain.share.LockEntity;
 import com.disaster.locklayer.domain.share.LockManager;
 import com.disaster.locklayer.domain.share.LockHeartBeatEntity;
+import com.disaster.locklayer.infrastructure.asset.Assert;
 import com.disaster.locklayer.infrastructure.constant.Constants;
 import com.disaster.locklayer.infrastructure.persistence.LockLayer;
 import com.disaster.locklayer.infrastructure.utils.LoggerUtil;
 import com.disaster.locklayer.infrastructure.utils.LuaUtils;
-import com.disaster.locklayer.infrastructure.utils.SystemClock;
 import com.google.common.collect.Lists;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
-import java.util.Objects;
 import java.util.concurrent.*;
-import java.util.concurrent.locks.LockSupport;
 
 /**
  * The type Jedis lock.
@@ -45,36 +40,40 @@ public class RedisLockLayerLayer implements LockLayer {
 
     @Override
     public boolean tryLock(String key) {
-        if (StringUtils.isBlank(key)) new NullPointerException("key can't empty or null");
+        Assert.AssertStrIsEmpty(key);
         Object result = _lock(LockEntity.build().setKey(key));
         return result.equals(Constants.LUA_RES_OK);
     }
 
     @Override
     public boolean tryLock(String key, Integer expireTime) {
-        if (StringUtils.isBlank(key)) new NullPointerException("key can't empty or null");
-        Object result = _lock(LockEntity.build().setKey(key).setExpireTime(expireTime));
+        Assert.AssertStrIsEmpty(key);
+        LockEntity lockEntity = LockEntity.build().setKey(key);
+        if (expireTime > 0) lockEntity.setExpireTime(expireTime);
+        Object result = _lock(lockEntity);
         return result.equals(Constants.LUA_RES_OK);
     }
 
 
     @Override
     public void unLock(String key) {
-        if (StringUtils.isBlank(key)) new NullPointerException("key can't empty or null");
+        Assert.AssertStrIsEmpty(key);
         lockService.unlock(lockManager, lockTimerEntityMap(), key);
     }
 
     @Override
     public boolean tryReentryLock(String key) {
-        if (StringUtils.isBlank(key)) new NullPointerException("key can't empty or null");
+        Assert.AssertStrIsEmpty(key);
         Object result = _lock(LockEntity.build().setKey(key).setReentryLock(true));
         return result.equals(Constants.LUA_RES_OK);
     }
 
     @Override
     public boolean tryReentryLock(String key, Integer expireTime) {
-        if (StringUtils.isBlank(key)) new NullPointerException("key can't empty or null");
-        Object result = _lock(LockEntity.build().setKey(key).setReentryLock(true));
+        Assert.AssertStrIsEmpty(key);
+        LockEntity lockEntity = LockEntity.build().setKey(key).setReentryLock(true);
+        if (expireTime > 0) lockEntity.setExpireTime(expireTime);
+        Object result = _lock(lockEntity);
         return result.equals(Constants.LUA_RES_OK);
     }
 
@@ -87,12 +86,7 @@ public class RedisLockLayerLayer implements LockLayer {
             LoggerUtil.printlnLog(this.getClass(), String.format("thread = %s,key = %s,lock success", Thread.currentThread().getName(), lockEntity.getKey()));
         } else {
             //retryLock
-            boolean b = lockService.retryLock(lockTimerEntityMap(), lockManager, lockEntity);
-            if (b) {
-                //heatBeat
-                lockService.allocFuture(executorService(), lockTimerEntityMap(), lockManager, lockEntity);
-                return Constants.LUA_RES_OK;
-            }
+            lockService.retryLock(executorService(), lockTimerEntityMap(), lockManager, lockEntity);
         }
         return result;
     }

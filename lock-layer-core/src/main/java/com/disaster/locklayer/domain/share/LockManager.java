@@ -1,5 +1,6 @@
 package com.disaster.locklayer.domain.share;
 
+import com.disaster.locklayer.infrastructure.utils.LockConfigUtil;
 import com.disaster.locklayer.infrastructure.utils.LoggerUtil;
 import com.disaster.locklayer.infrastructure.utils.SystemClock;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -61,12 +62,13 @@ public class LockManager {
                 while (iterator.hasNext()) {
                     Map.Entry<String, LockHeartBeatEntity> next = iterator.next();
                     LockHeartBeatEntity value = next.getValue();
-                    if ((value.getExpireCount().get() >= Constants.MAX_EXPIRE_COUNT * (value.getReentryCount().get() > 0 ? value.getReentryCount().get() : 1))
-                            || (value.getLockTime() - SystemClock.now() >= Constants.MAX_EXPIRE_TIME)) {
+                    if ((value.getExpireCount().get() >= LockConfigUtil.getMaxExpireCount() * getAnInt(value))
+                            || (value.getLockTime() - SystemClock.now() >= (LockConfigUtil.getMaxExpireTime() * (getAnInt(value))))) {
+                        LoggerUtil.printlnLog(Thread.currentThread().getClass(), String.format("key = %s, exclude max time,begin release", next.getKey()));
                         if (Objects.isNull(value.getFuture())) throw new RuntimeException("future is null");
                         Boolean shutdown = value.shutdown();
                         if (shutdown) {
-                            LoggerUtil.printlnLog(LockManager.class,String.format("key = %s,If the number of consecutive times is exceeded, the lock is released", next.getKey()));
+                            LoggerUtil.printlnLog(Thread.currentThread().getClass(), String.format("key = %s,If the number of consecutive times is exceeded, the lock is released", next.getKey()));
                             iterator.remove();
                         } else {
                             throw new RuntimeException(value.getFuture().isDone() + "RetryLockMonitorThread is");
@@ -75,6 +77,10 @@ public class LockManager {
                 }
             }
         });
+    }
+
+    private int getAnInt(LockHeartBeatEntity value) {
+        return value.getReentryCount().get() > 1 ? value.getReentryCount().get() : 1;
     }
 
     /**

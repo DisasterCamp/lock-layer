@@ -21,16 +21,8 @@ public class LoggerUtil {
      * @param msg    the msg
      */
     public static void printlnLog(Class aClass, String msg) {
-        if (loggerCache.containsKey(aClass.getName())) {
-            Logger log = loggerCache.get(aClass.getName());
-            if (log.isInfoEnabled()||log.isDebugEnabled()||log.isErrorEnabled()||log.isWarnEnabled()) {
-                log.info(msg);
-            } else {
-                System.out.println(msg);
-            }
-        }else {
-            Logger log = LoggerFactory.getLogger(aClass);
-            loggerCache.put(aClass.getName(), log);
+        if (LockConfigUtil.getLogEnable()){
+            Logger log = loggerCache.getOrDefault(aClass.getName(), LoggerFactory.getLogger(aClass));
             if (log.isInfoEnabled()||log.isDebugEnabled()||log.isErrorEnabled()||log.isWarnEnabled()) {
                 log.info(msg);
             } else {

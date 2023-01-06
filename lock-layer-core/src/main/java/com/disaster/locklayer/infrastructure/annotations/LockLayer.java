@@ -12,5 +12,5 @@ public @interface LockLayer {
 
     boolean reentryLock() default false;
 
-    int expireTime() default 60;
+    int expireTime() default 30;
 }

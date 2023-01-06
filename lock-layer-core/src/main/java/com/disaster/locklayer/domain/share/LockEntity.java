@@ -8,10 +8,11 @@ import com.disaster.locklayer.infrastructure.utils.MacUtil;
  */
 public class LockEntity {
     private String key;
-    private Integer expireTime = Constants.KEY_EXPIRE;
-    private Boolean isReentryLock = false;
+    private int expireTime = Constants.KEY_EXPIRE;
+    private boolean isReentryLock = false;
     private String _key;
     private volatile String threadIdentification = MacUtil.getCurrentIpLocalMac() + ":" + Thread.currentThread().getId();
+
 
     /**
      * Build lock entity.
@@ -105,8 +106,11 @@ public class LockEntity {
      * Sets thread identification.
      *
      * @param threadIdentification the thread identification
+     * @return the thread identification
      */
-    public void setThreadIdentification(String threadIdentification) {
+    public LockEntity setThreadIdentification(String threadIdentification) {
         this.threadIdentification = threadIdentification;
+        return this;
     }
+
 }

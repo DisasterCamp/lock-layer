@@ -1,0 +1,7 @@
+lock:
+  layer:
+    max_expire_count: 3
+    max_retry_time: 30000
+    max_expire_time : 60
+    log:
+      enable: false #开启lock layer日志

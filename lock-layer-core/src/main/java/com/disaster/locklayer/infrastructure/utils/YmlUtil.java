@@ -27,7 +27,7 @@ public class YmlUtil {
     private static ThreadLocal<String> nowFileName = new ThreadLocal<>();
 
     static {
-        loadYml("application-lock-layer.yml");
+        loadYml("lock-layer-extend.yml");
     }
 
     /**
@@ -57,7 +57,7 @@ public class YmlUtil {
             if (i < keys.length - 1) {
                 ymlInfo = (Map) value;
             } else if (value == null) {
-                throw new RuntimeException("key is no found");
+                return null;
             } else {
                 return value;
             }

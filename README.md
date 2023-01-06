@@ -180,4 +180,18 @@ public class LockLayerApplication {
     }
 }
 ```
+##  💐 配置 （Configuration）
+
+如果不进行动态配置则会使用lock layer默认的配置
+
+```yaml
+#全局设置，需要注意的是，此yml文件名必须是lock-layer-extend.yml，如果是其他文件名，lock layer将无法加载其配置
+lock:
+  layer:
+    max_expire_count: 3 #配置最大续锁的次数
+    max_retry_time: 30000 #最大锁重试时间，超过此时间则会锁失败
+    max_expire_time : 60 #最大续锁时间，此配置与max_expire_count共同
+    log:
+      enable: true #开启lock layer日志,默认不开启
+```
 

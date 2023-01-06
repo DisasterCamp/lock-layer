@@ -31,7 +31,7 @@ public interface LockService {
      * @param lockManager        the lock manager
      * @param lock               the lock
      */
-    boolean retryLock(ConcurrentHashMap<String, LockHeartBeatEntity> lockTimerEntityMap, LockManager lockManager, LockEntity lock);
+    boolean retryLock(ScheduledExecutorService executorService,ConcurrentHashMap<String, LockHeartBeatEntity> lockTimerEntityMap, LockManager lockManager, LockEntity lock);
 
     /**
      * Unlock.

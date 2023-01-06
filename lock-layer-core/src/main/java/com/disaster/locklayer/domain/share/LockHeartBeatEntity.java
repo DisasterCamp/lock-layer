@@ -1,5 +1,6 @@
 package com.disaster.locklayer.domain.share;
 
+import com.disaster.locklayer.infrastructure.utils.LockConfigUtil;
 import com.disaster.locklayer.infrastructure.utils.MacUtil;
 import com.disaster.locklayer.infrastructure.utils.SystemClock;
 
@@ -39,10 +40,11 @@ public class LockHeartBeatEntity {
      */
     private volatile AtomicInteger reentryCount = new AtomicInteger(0);
 
+
     /**
      * first lock time
      */
-    private volatile Long lockTime = SystemClock.now();
+    private volatile long lockTime = SystemClock.now();
 
 
     /**
@@ -198,9 +200,11 @@ public class LockHeartBeatEntity {
      * Sets thread identification.
      *
      * @param threadIdentification the thread identification
+     * @return the thread identification
      */
     public LockHeartBeatEntity setThreadIdentification(String threadIdentification) {
         this.threadIdentification = threadIdentification;
         return this;
     }
+
 }

@@ -28,7 +28,7 @@ public class LockConfig {
     public LockConfig() {
         this.client = new JedisClient(new JedisPool());
         this.schedule = new ScheduledThreadPoolExecutor(2 * Runtime.getRuntime().availableProcessors() + 1,
-                new BasicThreadFactory.Builder().namingPattern("redisLock-schedule-pool-%d").daemon(true).build());
+                new BasicThreadFactory.Builder().namingPattern("redisLock-schedule-pool-%d").daemon(false).build());
     }
 
     /**

@@ -24,7 +24,9 @@ public interface LockLayer {
      * @return the boolean
      * @throws Exception the exception
      */
-    boolean tryLock(String key, Integer expireTime) ;
+    boolean tryLock(String key, Integer expireTime);
+
+
 
     /**
      * Un lock.
@@ -32,7 +34,7 @@ public interface LockLayer {
      * @param key the key
      * @throws Exception the exception
      */
-    void unLock(String key) ;
+    void unLock(String key);
 
 
     /**
@@ -51,5 +53,7 @@ public interface LockLayer {
      * @param expireTime the expire time
      * @return the boolean
      */
-    boolean tryReentryLock(String key,Integer expireTime);
+    boolean tryReentryLock(String key, Integer expireTime);
+
+
 }
