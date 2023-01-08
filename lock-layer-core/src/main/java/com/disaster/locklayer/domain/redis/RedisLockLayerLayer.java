@@ -83,10 +83,15 @@ public class RedisLockLayerLayer implements LockLayer {
         if (result.equals(Constants.LUA_RES_OK)) {
             //heatBeat
             lockService.allocFuture(executorService(), lockTimerEntityMap(), lockManager, lockEntity);
-            LoggerUtil.printlnLog(this.getClass(), String.format("thread = %s,key = %s,lock success", Thread.currentThread().getName(), lockEntity.getKey()));
+            lockManager.handlerSuccessLockProcessor(lockEntity);
+            LoggerUtil.printlnLog(this.getClass(), String.format("thread = %s,key = %s,lock success", Thread.currentThread().getName(), lockEntity.get_key()));
         } else {
             //retryLock
-            lockService.retryLock(executorService(), lockTimerEntityMap(), lockManager, lockEntity);
+            boolean b = lockService.retryLock(executorService(), lockTimerEntityMap(), lockManager, lockEntity);
+            if (b) {
+                result = Constants.LUA_RES_OK;
+                lockManager.handlerSuccessLockProcessor(lockEntity);
+            }
         }
         return result;
     }

@@ -46,9 +46,24 @@ public class RedisLockLayerLayerLayerTest {
                 e.printStackTrace();
             }
             redisLockLayer.tryLock("test_key");
+            try {
+                Thread.sleep(10000);
+                redisLockLayer.unLock("test_key");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }, "thread2");
+        Thread thread2 = new Thread(() -> {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            redisLockLayer.tryLock("test_key");
+        }, "thread3");
         thread.start();
         thread1.start();
+        thread2.start();
         while (true) {
         }
     }

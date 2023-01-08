@@ -1,5 +1,7 @@
 package com.disaster.locklayer.domain.share;
 
+import com.disaster.locklayer.domain.service.LockHeatProcessor;
+import com.disaster.locklayer.domain.service.LockProcessor;
 import com.disaster.locklayer.infrastructure.utils.LockConfigUtil;
 import com.disaster.locklayer.infrastructure.utils.LoggerUtil;
 import com.disaster.locklayer.infrastructure.utils.SystemClock;
@@ -7,10 +9,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.disaster.locklayer.infrastructure.config.LockConfig;
 import com.disaster.locklayer.infrastructure.constant.Constants;
 
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -43,6 +42,16 @@ public class LockManager {
     private volatile ConcurrentHashMap<String, LockEntity> retryLockMap = new ConcurrentHashMap<>();
 
     /**
+     * lock processor container
+     */
+    private volatile List<LockProcessor> lockProcessorList = new ArrayList<>();
+
+    /**
+     * lockHeat processor container
+     */
+    private volatile List<LockHeatProcessor> lockHeatProcessorList = new ArrayList<>();
+
+    /**
      * Listen for the number of locks
      */
     private static ExecutorService executorService = Executors.newSingleThreadExecutor(new ThreadFactoryBuilder()
@@ -70,6 +79,7 @@ public class LockManager {
                         if (shutdown) {
                             LoggerUtil.printlnLog(Thread.currentThread().getClass(), String.format("key = %s,If the number of consecutive times is exceeded, the lock is released", next.getKey()));
                             iterator.remove();
+                            handlerLockHeartRemovedProcessor(value);
                         } else {
                             throw new RuntimeException(value.getFuture().isDone() + "RetryLockMonitorThread is");
                         }
@@ -164,5 +174,81 @@ public class LockManager {
      */
     public ConcurrentHashMap<String, LockEntity> getRetryLockMap() {
         return retryLockMap;
+    }
+
+    /**
+     * Gets lock processor list.
+     *
+     * @return the lock processor list
+     */
+    public List<LockProcessor> getLockProcessorList() {
+        return lockProcessorList;
+    }
+
+    /**
+     * Sets lock processor list.
+     *
+     * @param lockProcessorList the lock processor list
+     */
+    public void setLockProcessorList(List<LockProcessor> lockProcessorList) {
+        this.lockProcessorList = lockProcessorList;
+    }
+
+    /**
+     * Gets lock heat processor list.
+     *
+     * @return the lock heat processor list
+     */
+    public List<LockHeatProcessor> getLockHeatProcessorList() {
+        return lockHeatProcessorList;
+    }
+
+    /**
+     * Sets lock heat processor list.
+     *
+     * @param lockHeatProcessorList the lock heat processor list
+     */
+    public void setLockHeatProcessorList(List<LockHeatProcessor> lockHeatProcessorList) {
+        this.lockHeatProcessorList = lockHeatProcessorList;
+    }
+
+    /**
+     * Handler fail lock processor.
+     *
+     * @param lockEntity the lock entity
+     */
+    public void handlerFailLockProcessor(LockEntity lockEntity) {
+        if (Objects.nonNull(this.lockProcessorList) && !this.lockProcessorList.isEmpty()) {
+            for (LockProcessor lockProcessor : lockProcessorList) {
+                lockProcessor.failLockProcessor(lockEntity);
+            }
+        }
+    }
+
+
+    /**
+     * Handler success lock processor.
+     *
+     * @param lockEntity the lock entity
+     */
+    public void handlerSuccessLockProcessor(LockEntity lockEntity) {
+        if (Objects.nonNull(this.lockProcessorList) && !this.lockProcessorList.isEmpty()) {
+            for (LockProcessor lockProcessor : lockProcessorList) {
+                lockProcessor.successLockProcessor(lockEntity);
+            }
+        }
+    }
+
+    /**
+     * Handler lock heart removed processor.
+     *
+     * @param value the value
+     */
+    public void handlerLockHeartRemovedProcessor(LockHeartBeatEntity value){
+        if (Objects.nonNull(this.lockHeatProcessorList) && !this.lockHeatProcessorList.isEmpty()) {
+            for (LockHeatProcessor lockHeatProcessor : lockHeatProcessorList) {
+                lockHeatProcessor.lockHeartRemovedProcessor(value);
+            }
+        }
     }
 }

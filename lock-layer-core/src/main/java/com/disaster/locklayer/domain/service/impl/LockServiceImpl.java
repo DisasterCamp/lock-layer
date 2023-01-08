@@ -69,7 +69,7 @@ public class LockServiceImpl implements LockService {
                 while ((retryTime = SystemClock.now() - now) < LockConfigUtil.getMaxRetryTime()) {
                     Object result = jedis(lockManager).eval(LuaUtils.getLockLuaStr(), Collections.singletonList(lockEntity.get_key()), Lists.newArrayList(lockEntity.getKey(), lockEntity.getExpireTime().toString()));
                     if (result.equals(Constants.LUA_RES_OK)) {
-                        LoggerUtil.printlnLog(this.getClass(), String.format("thread = %s ,key = %s,retry lock success , retry time = %d ms", Thread.currentThread().getName(), lockEntity.getKey(), retryTime));
+                        LoggerUtil.printlnLog(this.getClass(), String.format("thread = %s ,key = %s,retry lock success , retry time = %d ms", Thread.currentThread().getName(), lockEntity.get_key(), retryTime));
                         countDownLatch.countDown();
                         isLock.getAndSet(true);
                         allocFuture(executorService, lockTimerEntityMap, lockManager, lockEntity);
@@ -77,9 +77,10 @@ public class LockServiceImpl implements LockService {
                     }
                 }
                 if (!isLock.get()) {
-                    LoggerUtil.printlnLog(this.getClass(), String.format("thread = %s ,key = %s,retry lock fail , Record request", Thread.currentThread().getName(), lockEntity.getKey()));
+                    LoggerUtil.printlnLog(this.getClass(), String.format("thread = %s ,key = %s,retry lock fail , Record request", Thread.currentThread().getName(), lockEntity.get_key()));
                     ConcurrentHashMap<String, LockEntity> retryLockMap = retryLockMap(lockManager);
                     retryLockMap.put(lockEntity.get_key(), lockEntity);
+                    lockManager.handlerFailLockProcessor(lockEntity);
                     countDownLatch.countDown();
                 }
             }).start();
@@ -110,14 +111,15 @@ public class LockServiceImpl implements LockService {
                 lockHeartBeatEntity.decrementAndGetReentryCount();
                 lockHeartBeatEntity.shutdown();
                 lockTimerEntityMap.remove(_key);
-                if (result.equals(1l)) {
-                    LoggerUtil.printlnLog(this.getClass(), String.format("key = %s ,unlock success", key));
+                if (result.equals(Constants.LUA_RES_OK)) {
+                    LoggerUtil.printlnLog(this.getClass(), String.format("key = %s ,unlock success", _key));
                 } else {
-                    LoggerUtil.printlnLog(this.getClass(), String.format("key = %s,not exist", key));
+                    LoggerUtil.printlnLog(this.getClass(), String.format("key = %s,not exist", _key));
                 }
             }
         } else {
-            LoggerUtil.printlnLog(this.getClass(), "current Thread can't unlock other thread key");
+            LoggerUtil.printlnLog(this.getClass(), "current thread can't unlock other thread lock");
+            throw new RuntimeException("current thread can't unlock other thread lock");
         }
     }
 
