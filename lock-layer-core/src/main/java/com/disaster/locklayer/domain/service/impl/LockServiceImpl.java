@@ -36,7 +36,7 @@ public class LockServiceImpl implements LockService {
                 LockHeartBeatEntity lockHeartBeatEntity = lockTimerEntityMap.get(lockEntity.get_key());
                 jedis(lockManager).expire(lockEntity.get_key(), lockEntity.getExpireTime());
                 lockHeartBeatEntity.addAndGetExpireCount(1);
-                LoggerUtil.printlnLog(thread.getClass(), String.format("key = %s continuance success",lockEntity.get_key()));
+                LoggerUtil.printlnLog(thread.getClass(), String.format("key = %s continuance success", lockEntity.get_key()));
             }
         }, LockManager.calculationPeriod(lockEntity.getExpireTime()), LockManager.calculationPeriod(lockEntity.getExpireTime()), TimeUnit.SECONDS);
         CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -57,9 +57,14 @@ public class LockServiceImpl implements LockService {
     ) {
         LockHeartBeatEntity lockHeartBeatEntity = lockTimerEntityMap.get(lockEntity.get_key());
         if (lockEntity.getReentryLock() && lockHeartBeatEntity.isCurrentThread()) {
-            lockTimerEntityMap.get(lockEntity.get_key()).addAndGetReentryCount(1);
-            LoggerUtil.printlnLog(this.getClass(), String.format("key = %s,reentryCount +1,currentReentryCount = %s", lockEntity.getKey(), lockHeartBeatEntity.getReentryCount()));
-            return true;
+            if (lockTimerEntityMap.get(lockEntity.get_key()).getReentryCount().intValue() < LockConfigUtil.getMaxReentryCount()) {
+                lockTimerEntityMap.get(lockEntity.get_key()).addAndGetReentryCount(1);
+                LoggerUtil.printlnLog(this.getClass(), String.format("key = %s,reentryCount +1,currentReentryCount = %s", lockEntity.getKey(), lockHeartBeatEntity.getReentryCount()));
+                return true;
+            } else {
+                LoggerUtil.printlnLog(this.getClass(), String.format("key = %s,thread = ,Maximum reentry times exceeded ,currentReentryCount = %s", lockEntity.getKey(), Thread.currentThread().getId(), lockHeartBeatEntity.getReentryCount()));
+                return false;
+            }
         } else {
             long now = SystemClock.now();
             CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -103,7 +108,7 @@ public class LockServiceImpl implements LockService {
         }
         if (lockHeartBeatEntity.isCurrentThread()) {
             Object result;
-            if (lockHeartBeatEntity.getReentryCount().get() > 1) {
+            if (lockHeartBeatEntity.getReentryCount().intValue() > 1) {
                 lockHeartBeatEntity.decrementAndGetReentryCount();
                 LoggerUtil.printlnLog(this.getClass(), String.format("key = %s,reentryCount -1,currentReentryCount = %s", key, lockHeartBeatEntity.getReentryCount()));
             } else {

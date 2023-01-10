@@ -65,13 +65,13 @@ public class LockManager {
      */
     public LockManager() {
         executorService.execute(() -> {
-            while (true) {
+            while (!Thread.currentThread().isInterrupted()) {
                 Set<Map.Entry<String, LockHeartBeatEntity>> entries = lockTimerEntityConcurrentHashMap.entrySet();
                 Iterator<Map.Entry<String, LockHeartBeatEntity>> iterator = entries.iterator();
                 while (iterator.hasNext()) {
                     Map.Entry<String, LockHeartBeatEntity> next = iterator.next();
                     LockHeartBeatEntity value = next.getValue();
-                    if ((value.getExpireCount().get() >= LockConfigUtil.getMaxExpireCount() * getAnInt(value))
+                    if ((value.getExpireCount().intValue() >= LockConfigUtil.getMaxExpireCount() * getAnInt(value))
                             || (value.getLockTime() - SystemClock.now() >= (LockConfigUtil.getMaxExpireTime() * (getAnInt(value))))) {
                         LoggerUtil.printlnLog(Thread.currentThread().getClass(), String.format("key = %s, exclude max time,begin release", next.getKey()));
                         if (Objects.isNull(value.getFuture())) throw new RuntimeException("future is null");
@@ -90,7 +90,7 @@ public class LockManager {
     }
 
     private int getAnInt(LockHeartBeatEntity value) {
-        return value.getReentryCount().get() > 1 ? value.getReentryCount().get() : 1;
+        return value.getReentryCount().intValue() > 1 ? value.getReentryCount().intValue() : 1;
     }
 
     /**
@@ -244,7 +244,7 @@ public class LockManager {
      *
      * @param value the value
      */
-    public void handlerLockHeartRemovedProcessor(LockHeartBeatEntity value){
+    public void handlerLockHeartRemovedProcessor(LockHeartBeatEntity value) {
         if (Objects.nonNull(this.lockHeatProcessorList) && !this.lockHeatProcessorList.isEmpty()) {
             for (LockHeatProcessor lockHeatProcessor : lockHeatProcessorList) {
                 lockHeatProcessor.lockHeartRemovedProcessor(value);

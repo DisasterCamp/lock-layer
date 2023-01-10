@@ -191,7 +191,37 @@ lock:
     max_expire_count: 3 #配置最大续锁的次数
     max_retry_time: 30000 #最大锁重试时间，超过此时间则会锁失败
     max_expire_time : 60 #最大续锁时间，此配置与max_expire_count共同
+    max_reentry_count: 3 #可重入次数
     log:
       enable: true #开启lock layer日志,默认不开启
+```
+##  🧽 扩展接口 （Extend Api）
+lock layer 提供LockHeatProcessor、LockProcessor两个接口让开发人员可以在加锁成功、失败、锁续时超时时进行扩展操作
+
+```java
+#LockHeatProcessor接口作用锁续时超时时进行的后续操作扩展接口
+@Service
+public class LockHeatProcessorImpl implements LockHeatProcessor {
+    @Override
+    public void lockHeartRemovedProcessor(LockHeartBeatEntity value) {
+        System.out.println(value.getExpireCount());
+    }
+}
+```
+
+```java
+#LockProcessor接口作用加锁成功、失败时的后续操作扩展接口
+@Service
+public class LockProcessorImpl implements LockProcessor {
+    @Override
+    public void failLockProcessor(LockEntity lockEntity) {
+        System.out.println("lock failure"+lockEntity.get_key());
+    }
+
+    @Override
+    public void successLockProcessor(LockEntity lockEntity) {
+        System.out.println("lock success"+lockEntity.get_key());
+    }
+}
 ```
 

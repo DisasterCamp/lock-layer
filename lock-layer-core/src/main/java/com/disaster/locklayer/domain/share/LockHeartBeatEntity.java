@@ -1,16 +1,16 @@
 package com.disaster.locklayer.domain.share;
 
-import com.disaster.locklayer.infrastructure.utils.LockConfigUtil;
 import com.disaster.locklayer.infrastructure.utils.MacUtil;
 import com.disaster.locklayer.infrastructure.utils.SystemClock;
+import sun.misc.Contended;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.LongAdder;
 
 /**
- * The type Lock heart beat entity.
+ * The type Lock heart beat entity.if set jvm param -XX:-RestrictContended ，It can effectively improve the concurrency performance
  *
  * @author disaster
  * @version 1.0
@@ -23,7 +23,7 @@ public class LockHeartBeatEntity {
     /**
      * continuance
      */
-    private volatile AtomicInteger expireCount = new AtomicInteger(0);
+    private volatile LongAdder expireCount = new LongAdder();
 
     /**
      * The number of times elapsed
@@ -38,7 +38,7 @@ public class LockHeartBeatEntity {
     /**
      * reentry count
      */
-    private volatile AtomicInteger reentryCount = new AtomicInteger(0);
+    private volatile LongAdder reentryCount = new LongAdder();
 
 
     /**
@@ -92,7 +92,7 @@ public class LockHeartBeatEntity {
      *
      * @return the expire count
      */
-    public AtomicInteger getExpireCount() {
+    public LongAdder getExpireCount() {
         return expireCount;
     }
 
@@ -103,7 +103,7 @@ public class LockHeartBeatEntity {
      * @return the and add
      */
     public LockHeartBeatEntity addAndGetExpireCount(int expireCount) {
-        this.expireCount.addAndGet(expireCount);
+        this.expireCount.add(expireCount);
         return this;
     }
 
@@ -114,7 +114,7 @@ public class LockHeartBeatEntity {
      * @return the and add reentry count
      */
     public LockHeartBeatEntity addAndGetReentryCount(int reentryCount) {
-        this.reentryCount.addAndGet(reentryCount);
+        this.reentryCount.add(reentryCount);
         return this;
     }
 
@@ -124,7 +124,7 @@ public class LockHeartBeatEntity {
      * @return the lock heart beat entity
      */
     public LockHeartBeatEntity decrementAndGetReentryCount() {
-        this.reentryCount.decrementAndGet();
+        this.reentryCount.decrement();
         return this;
     }
 
@@ -183,7 +183,7 @@ public class LockHeartBeatEntity {
      *
      * @return the reentry count
      */
-    public AtomicInteger getReentryCount() {
+    public LongAdder getReentryCount() {
         return reentryCount;
     }
 

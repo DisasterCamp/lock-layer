@@ -3,5 +3,6 @@ lock:
     max_expire_count: 3
     max_retry_time: 30000
     max_expire_time : 60
+    max_reentry_count: 3
     log:
       enable: false #开启lock layer日志

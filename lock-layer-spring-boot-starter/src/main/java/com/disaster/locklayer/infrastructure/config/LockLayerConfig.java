@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
  */
 @Configuration
 @EnableAspectJAutoProxy
-@AutoConfigureOrder(Ordered.LOWEST_PRECEDENCE)
+@AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
 @Slf4j
 @EnableConfigurationProperties(LockLayerProperties.class)
 public class LockLayerConfig {

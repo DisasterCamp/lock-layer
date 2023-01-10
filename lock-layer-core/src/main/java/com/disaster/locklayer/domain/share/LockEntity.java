@@ -2,9 +2,13 @@ package com.disaster.locklayer.domain.share;
 
 import com.disaster.locklayer.infrastructure.constant.Constants;
 import com.disaster.locklayer.infrastructure.utils.MacUtil;
+import sun.misc.Contended;
 
 /**
- * The type Lock entity.
+ * The type Lock entity. set jvm param -XX:-RestrictContended ，It can effectively improve the concurrency performance
+ *
+ * @author disaster
+ * @version 1.0
  */
 public class LockEntity {
     private String key;
