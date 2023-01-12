@@ -6,6 +6,9 @@ import java.util.Objects;
 
 /**
  * The type Lock config util.
+ *
+ * @author disaster
+ * @version 1.0
  */
 public class LockConfigUtil {
     private static Integer MAX_EXPIRE_COUNT;

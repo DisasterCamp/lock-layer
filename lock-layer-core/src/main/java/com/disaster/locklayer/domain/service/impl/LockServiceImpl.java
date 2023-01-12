@@ -124,7 +124,7 @@ public class LockServiceImpl implements LockService {
             }
         } else {
             LoggerUtil.printlnLog(this.getClass(), "current thread can't unlock other thread lock");
-            throw new RuntimeException("current thread can't unlock other thread lock");
+            throw new IllegalMonitorStateException("current thread can't unlock other thread lock");
         }
     }
 
