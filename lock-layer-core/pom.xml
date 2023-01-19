@@ -15,7 +15,7 @@
 
     <name>lock-layer-core</name>
     <description>lock-layer的核心功能包</description>
-    <url>https://gitee.com/disaster_-camp/fast-mq</url>
+    <url>https://gitee.com/disaster_-camp/lock-layer</url>
 
     <dependencies>
         <dependency>

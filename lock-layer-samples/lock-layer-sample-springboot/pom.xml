@@ -16,7 +16,7 @@
 
     <name>lock-layer-sample-springboot</name>
     <description>lock-layer springboot使用案例</description>
-    <url>https://gitee.com/disaster_-camp/fast-mq</url>
+    <url>https://gitee.com/disaster_-camp/lock-layer</url>
 
 
     <dependencies>

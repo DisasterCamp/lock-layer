@@ -24,7 +24,7 @@
 
     <name>lock-layer-samples</name>
     <description>lock-layer的案例包</description>
-    <url>https://gitee.com/disaster_-camp/fast-mq</url>
+    <url>https://gitee.com/disaster_-camp/lock-layer</url>
 
     <properties>
         <!-- 跳过部署 -->

@@ -12,7 +12,7 @@
     <packaging>pom</packaging>
     <name>lock-layer-dependencies</name>
     <description>lock-layer的版本管理包</description>
-    <url>https://gitee.com/disaster_-camp/fast-mq</url>
+    <url>https://gitee.com/disaster_-camp/lock-layer</url>
 
     <licenses>
         <license>

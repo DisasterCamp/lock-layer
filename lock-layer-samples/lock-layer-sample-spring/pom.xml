@@ -15,7 +15,7 @@
 
     <name>lock-layer-sample-spring</name>
     <description>lock-layer spring使用案例</description>
-    <url>https://gitee.com/disaster_-camp/fast-mq</url>
+    <url>https://gitee.com/disaster_-camp/lock-layer</url>
 
 
     <dependencies>
