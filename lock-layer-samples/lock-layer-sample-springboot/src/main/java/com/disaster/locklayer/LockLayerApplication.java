@@ -14,8 +14,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 public class LockLayerApplication {
     @Autowired
     private LockLayer redisLockLayer;
-    @Autowired
-    private Lock lock;
+
 
     public static void main(String[] args) {
         SpringApplication.run(LockLayerApplication.class, args);

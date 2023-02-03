@@ -39,17 +39,8 @@ public class LockServiceImpl implements LockService {
                 LoggerUtil.printlnLog(thread.getClass(), String.format("key = %s continuance success", lockEntity.get_key()));
             }
         }, LockManager.calculationPeriod(lockEntity.getExpireTime()), LockManager.calculationPeriod(lockEntity.getExpireTime()), TimeUnit.SECONDS);
-        CountDownLatch countDownLatch = new CountDownLatch(1);
-        long now = SystemClock.now();
-        while (true) {
-            if (Objects.nonNull(scheduledFuture) || SystemClock.now() - now > 10 * 1000) {
-                countDownLatch.countDown();
-                break;
-            }
-        }
         LockHeartBeatEntity lockHeartBeat = lockEntity.getReentryLock() ? LockHeartBeatEntity.build().setFuture(scheduledFuture).addAndGetReentryCount(1) : LockHeartBeatEntity.build().setFuture(scheduledFuture);
         lockTimerEntityMap.put(lockEntity.get_key(), lockHeartBeat);
-        countDownLatch.await();
     }
 
     @Override
