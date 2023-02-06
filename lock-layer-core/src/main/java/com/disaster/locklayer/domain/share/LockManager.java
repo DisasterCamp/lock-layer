@@ -81,6 +81,7 @@ public class LockManager {
                             iterator.remove();
                             handlerLockHeartRemovedProcessor(value);
                         } else {
+                            LoggerUtil.printlnLog(Thread.currentThread().getClass(), String.format("ScheduledFuture = %s,isn't cancel", next.getValue().getFuture()));
                             throw new RuntimeException(value.getFuture().isDone() + "RetryLockMonitorThread is");
                         }
                     }
