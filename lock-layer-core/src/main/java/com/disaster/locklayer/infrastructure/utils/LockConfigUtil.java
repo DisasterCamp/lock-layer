@@ -1,6 +1,7 @@
 package com.disaster.locklayer.infrastructure.utils;
 
 import com.disaster.locklayer.infrastructure.constant.Constants;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Objects;
 
@@ -15,6 +16,7 @@ public class LockConfigUtil {
     private static Integer MAX_RETRY_TIME;
     private static Long MAX_EXPIRE_TIME;
     private static Boolean LOG_ENABLE;
+    private static String RENEW_TYPE;
     private static Integer MAX_REENTRY_COUNT;
     private static String PREFIX = "lock.layer.";
 
@@ -24,11 +26,13 @@ public class LockConfigUtil {
         Integer maxExpireTime = (Integer) YmlUtil.getValue(PREFIX + "max_expire_time");
         Integer maxReentryCount = (Integer) YmlUtil.getValue(PREFIX + "max_reentry_count");
         Boolean logEnable = (Boolean) YmlUtil.getValue(PREFIX + "log.enable");
+        String renewType = (String) YmlUtil.getValue(PREFIX + "renew.type");
         MAX_EXPIRE_COUNT = Objects.isNull(maxExpireCount) ? Constants.MAX_EXPIRE_COUNT : maxExpireCount;
         MAX_RETRY_TIME = Objects.isNull(maxRetryTime) ? Constants.MAX_RETRY_TIME : maxRetryTime;
         MAX_EXPIRE_TIME = Objects.isNull(maxExpireTime) ? Constants.MAX_EXPIRE_TIME : maxExpireTime;
         LOG_ENABLE = Objects.isNull(logEnable) ? false : logEnable;
         MAX_REENTRY_COUNT = Objects.isNull(maxReentryCount) ? 3 : maxReentryCount;
+        RENEW_TYPE = StringUtils.isBlank(renewType) ? "thread" : renewType;
     }
 
     /**
@@ -94,4 +98,21 @@ public class LockConfigUtil {
         return LOG_ENABLE;
     }
 
+    /**
+     * Gets renew type.
+     *
+     * @return the renew type
+     */
+    public static String getRenewType() {
+        return RENEW_TYPE;
+    }
+
+    /**
+     * Sets renew type.
+     *
+     * @param renewType the renew type
+     */
+    public static void setRenewType(String renewType) {
+        RENEW_TYPE = renewType;
+    }
 }

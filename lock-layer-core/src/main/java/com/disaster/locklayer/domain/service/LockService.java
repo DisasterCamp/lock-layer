@@ -17,21 +17,18 @@ public interface LockService {
     /**
      * Alloc future.
      *
-     * @param scheduledExecutorService             the scheduled executor service
-     * @param lockHeartBeatEntityConcurrentHashMap the lock heart beat entity concurrent hash map
      * @param lockManager                          the lock manager
      * @param lock                                 the lock
      */
-    void allocFuture(ScheduledExecutorService scheduledExecutorService, ConcurrentHashMap<String, LockHeartBeatEntity> lockHeartBeatEntityConcurrentHashMap, LockManager lockManager, LockEntity lock);
+    void allocFuture( LockManager lockManager, LockEntity lock);
 
     /**
      * Retry lock.
      *
-     * @param lockTimerEntityMap the lock timer entity map
      * @param lockManager        the lock manager
      * @param lock               the lock
      */
-    boolean retryLock(ScheduledExecutorService executorService,ConcurrentHashMap<String, LockHeartBeatEntity> lockTimerEntityMap, LockManager lockManager, LockEntity lock);
+    boolean retryLock(LockManager lockManager, LockEntity lock);
 
     /**
      * Unlock.

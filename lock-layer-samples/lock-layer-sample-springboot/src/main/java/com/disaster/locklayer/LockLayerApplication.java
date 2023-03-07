@@ -1,6 +1,8 @@
 package com.disaster.locklayer;
 
 import com.disaster.locklayer.domain.Lock;
+import com.disaster.locklayer.domain.service.impl.LockServiceImpl;
+import com.disaster.locklayer.domain.share.LockManager;
 import com.disaster.locklayer.infrastructure.persistence.LockLayer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
@@ -10,10 +12,15 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+
 @SpringBootApplication
 public class LockLayerApplication {
     @Autowired
     private LockLayer redisLockLayer;
+    @Autowired
+    private LockManager lockManager;
 
 
     public static void main(String[] args) {
@@ -21,15 +28,20 @@ public class LockLayerApplication {
     }
 
     @Bean
-    public ApplicationRunner applicationRunner1(){
+    public ApplicationRunner applicationRunner1() {
         return args -> {
+            for (int i = 0; i < 10; i++) {
+                new Thread(()->{
+                    redisLockLayer.tryLock("key");
+                }).start();
+            }
 //            lock.lock();
 //            lock.lockException();
         };
     }
 
-    @Bean
-    public ApplicationRunner applicationRunner(){
+    //    @Bean
+    public ApplicationRunner applicationRunner() {
         return args -> {
             Thread thread = new Thread(() -> {
                 redisLockLayer.tryLock("test_key");

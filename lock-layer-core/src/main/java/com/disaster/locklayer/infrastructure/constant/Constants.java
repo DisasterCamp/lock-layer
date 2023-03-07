@@ -39,6 +39,11 @@ public interface Constants {
     String KEY_PREFIX = "lock:layer:prefix:";
 
     /**
+     * Lock prefix
+     */
+    String CHANNEL_PREFIX = "lock:layer:channel:prefix:";
+
+    /**
      * Locked return value
      */
     String RES_OK = "OK";

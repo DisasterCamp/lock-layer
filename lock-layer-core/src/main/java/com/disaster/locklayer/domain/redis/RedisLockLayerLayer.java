@@ -8,6 +8,7 @@ import com.disaster.locklayer.domain.share.LockHeartBeatEntity;
 import com.disaster.locklayer.infrastructure.asset.Assert;
 import com.disaster.locklayer.infrastructure.constant.Constants;
 import com.disaster.locklayer.infrastructure.persistence.LockLayer;
+import com.disaster.locklayer.infrastructure.utils.LockConfigUtil;
 import com.disaster.locklayer.infrastructure.utils.LoggerUtil;
 import com.disaster.locklayer.infrastructure.utils.LuaUtils;
 import com.google.common.collect.Lists;
@@ -82,12 +83,15 @@ public class RedisLockLayerLayer implements LockLayer {
         Object result = jedis().eval(LuaUtils.getLockLuaStr(), Collections.singletonList(lockEntity.get_key()), Lists.newArrayList(lockEntity.getKey(), lockEntity.getExpireTime().toString()));
         if (result.equals(Constants.LUA_RES_OK)) {
             //heatBeat
-            lockService.allocFuture(executorService(), lockTimerEntityMap(), lockManager, lockEntity);
+            if (LockConfigUtil.getRenewType().equals("redis")) {
+                jedis().publish(Constants.CHANNEL_PREFIX + lockEntity.getKey(), "lock");
+            }
+            lockService.allocFuture(lockManager, lockEntity);
             lockManager.handlerSuccessLockProcessor(lockEntity);
             LoggerUtil.printlnLog(this.getClass(), String.format("thread = %s,key = %s,lock success", Thread.currentThread().getName(), lockEntity.get_key()));
         } else {
             //retryLock
-            boolean b = lockService.retryLock(executorService(), lockTimerEntityMap(), lockManager, lockEntity);
+            boolean b = lockService.retryLock(lockManager, lockEntity);
             if (b) {
                 result = Constants.LUA_RES_OK;
                 lockManager.handlerSuccessLockProcessor(lockEntity);

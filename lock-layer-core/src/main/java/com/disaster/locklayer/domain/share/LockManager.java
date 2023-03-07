@@ -2,6 +2,7 @@ package com.disaster.locklayer.domain.share;
 
 import com.disaster.locklayer.domain.service.LockHeatProcessor;
 import com.disaster.locklayer.domain.service.LockProcessor;
+import com.disaster.locklayer.domain.service.impl.LockServiceImpl;
 import com.disaster.locklayer.infrastructure.utils.LockConfigUtil;
 import com.disaster.locklayer.infrastructure.utils.LoggerUtil;
 import com.disaster.locklayer.infrastructure.utils.SystemClock;
@@ -29,7 +30,7 @@ public class LockManager {
     /**
      * The constant period.
      */
-    public static Double period = 3d / 4d;
+    public static Double period = 1d / 2d;
 
     /**
      * Thread container
@@ -59,6 +60,14 @@ public class LockManager {
             .setNameFormat("RetryLockMonitorThread")
             .build());
 
+    /**
+     * retry Lock Thread Pool
+     */
+    private static ExecutorService retryLockExecutorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 1, new ThreadFactoryBuilder()
+            .setDaemon(false)
+            .setNameFormat("retryLockThreadPool")
+            .build());
+
 
     /**
      * Instantiates a new Lock manager.
@@ -77,6 +86,9 @@ public class LockManager {
                         if (Objects.isNull(value.getFuture())) throw new RuntimeException("future is null");
                         Boolean shutdown = value.shutdown();
                         if (shutdown) {
+                            if (LockConfigUtil.getRenewType().equals("redis")) {
+                                lockConfig.getClient().publish(Constants.CHANNEL_PREFIX + value.getKey(), "unregister");
+                            }
                             LoggerUtil.printlnLog(Thread.currentThread().getClass(), String.format("key = %s,If the number of consecutive times is exceeded, the lock is released", next.getKey()));
                             iterator.remove();
                             handlerLockHeartRemovedProcessor(value);
@@ -211,6 +223,25 @@ public class LockManager {
      */
     public void setLockHeatProcessorList(List<LockHeatProcessor> lockHeatProcessorList) {
         this.lockHeatProcessorList = lockHeatProcessorList;
+    }
+
+
+    /**
+     * Gets retry lock executor service.
+     *
+     * @return the retry lock executor service
+     */
+    public ExecutorService getRetryLockExecutorService() {
+        return retryLockExecutorService;
+    }
+
+    /**
+     * Sets retry lock executor service.
+     *
+     * @param retryLockExecutorService the retry lock executor service
+     */
+    public void setRetryLockExecutorService(ExecutorService retryLockExecutorService) {
+        LockManager.retryLockExecutorService = retryLockExecutorService;
     }
 
     /**

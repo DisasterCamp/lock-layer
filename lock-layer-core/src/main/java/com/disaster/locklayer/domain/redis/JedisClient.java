@@ -1,5 +1,6 @@
 package com.disaster.locklayer.domain.redis;
 
+import com.disaster.locklayer.infrastructure.utils.LoggerUtil;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPubSub;
@@ -101,28 +102,6 @@ public class JedisClient {
         }
     }
 
-    /**
-     * Sub.
-     *
-     * @param channel the channel
-     */
-    public void sub(String channel) {
-        Jedis jedis = null;
-        try {
-            jedis = jedisPool.getResource();
-            jedis.subscribe(new JedisPubSub() {
-                @Override
-                public void onMessage(String channel, String message) {
-
-                }
-            }, channel);
-        } finally {
-            if (jedis != null) {
-                jedis.close();
-            }
-        }
-    }
-
 
     /**
      * Eval lua script command
@@ -138,6 +117,44 @@ public class JedisClient {
             jedis = jedisPool.getResource();
             return jedis.eval(script, keys, args);
 
+        } finally {
+            if (jedis != null) {
+                jedis.close();
+            }
+        }
+    }
+
+
+    /**
+     * Subscribe.
+     *
+     * @param jedisPubSub the jedis pub sub
+     * @param channels    the channels
+     */
+    public void subscribe(JedisPubSub jedisPubSub, String... channels) {
+        Jedis jedis = null;
+        try {
+            jedis = jedisPool.getResource();
+            jedis.subscribe(jedisPubSub, channels);
+        } finally {
+            if (jedis != null) {
+                jedis.close();
+            }
+        }
+    }
+
+    /**
+     * Publish.
+     *
+     * @param channel the channel
+     * @param message the message
+     */
+    public void publish(String channel, String message) {
+        Jedis jedis = null;
+        try {
+            jedis = jedisPool.getResource();
+            jedis.publish(channel, message);
+            LoggerUtil.printlnLog(JedisClient.class, "Channel:" + channel + "  Message:" + message);
         } finally {
             if (jedis != null) {
                 jedis.close();

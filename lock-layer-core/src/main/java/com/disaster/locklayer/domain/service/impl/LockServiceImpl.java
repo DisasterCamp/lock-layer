@@ -14,8 +14,11 @@ import com.google.common.collect.Lists;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import redis.clients.jedis.Connection;
+import redis.clients.jedis.JedisPubSub;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -29,27 +32,27 @@ public class LockServiceImpl implements LockService {
 
     @Override
     @SneakyThrows
-    public void allocFuture(ScheduledExecutorService executorService, ConcurrentHashMap<String, LockHeartBeatEntity> lockTimerEntityMap, LockManager lockManager, LockEntity lockEntity) {
-        ScheduledFuture<?> scheduledFuture = executorService.scheduleAtFixedRate(() -> {
+    public void allocFuture(LockManager lockManager, LockEntity lockEntity) {
+        ScheduledFuture<?> scheduledFuture = executorService(lockManager).scheduleAtFixedRate(() -> {
             Thread thread = Thread.currentThread();
             if (Objects.nonNull(jedis(lockManager).get(lockEntity.get_key()))) {
-                LockHeartBeatEntity lockHeartBeatEntity = lockTimerEntityMap.get(lockEntity.get_key());
+                LockHeartBeatEntity lockHeartBeatEntity = lockTimerEntityMap(lockManager).get(lockEntity.get_key());
                 jedis(lockManager).expire(lockEntity.get_key(), lockEntity.getExpireTime());
                 lockHeartBeatEntity.addAndGetExpireCount(1);
                 LoggerUtil.printlnLog(thread.getClass(), String.format("key = %s continuance success", lockEntity.get_key()));
             }
         }, LockManager.calculationPeriod(lockEntity.getExpireTime()), LockManager.calculationPeriod(lockEntity.getExpireTime()), TimeUnit.SECONDS);
-        LockHeartBeatEntity lockHeartBeat = lockEntity.getReentryLock() ? LockHeartBeatEntity.build().setFuture(scheduledFuture).addAndGetReentryCount(1) : LockHeartBeatEntity.build().setFuture(scheduledFuture);
-        lockTimerEntityMap.put(lockEntity.get_key(), lockHeartBeat);
+        LockHeartBeatEntity lockHeartBeat = lockEntity.getReentryLock() ? LockHeartBeatEntity.build().setKey(lockEntity.getKey()).setFuture(scheduledFuture).addAndGetReentryCount(1) : LockHeartBeatEntity.build().setKey(lockEntity.getKey()).setFuture(scheduledFuture);
+        lockTimerEntityMap(lockManager).put(lockEntity.get_key(), lockHeartBeat);
     }
 
     @Override
-    public boolean retryLock(ScheduledExecutorService executorService, ConcurrentHashMap<String, LockHeartBeatEntity> lockTimerEntityMap, LockManager lockManager, LockEntity lockEntity
-    ) {
-        LockHeartBeatEntity lockHeartBeatEntity = lockTimerEntityMap.get(lockEntity.get_key());
+    public boolean retryLock(LockManager lockManager, LockEntity lockEntity) {
+        ConcurrentHashMap<String, LockHeartBeatEntity> lockTimerEntityConcurrentHashMap = lockManager.getLockTimerEntityConcurrentHashMap();
+        LockHeartBeatEntity lockHeartBeatEntity = lockTimerEntityConcurrentHashMap.get(lockEntity.get_key());
         if (lockEntity.getReentryLock() && lockHeartBeatEntity.isCurrentThread()) {
-            if (lockTimerEntityMap.get(lockEntity.get_key()).getReentryCount().intValue() < LockConfigUtil.getMaxReentryCount()) {
-                lockTimerEntityMap.get(lockEntity.get_key()).addAndGetReentryCount(1);
+            if (lockTimerEntityConcurrentHashMap.get(lockEntity.get_key()).getReentryCount().intValue() < LockConfigUtil.getMaxReentryCount()) {
+                lockTimerEntityConcurrentHashMap.get(lockEntity.get_key()).addAndGetReentryCount(1);
                 LoggerUtil.printlnLog(this.getClass(), String.format("key = %s,reentryCount +1,currentReentryCount = %s", lockEntity.getKey(), lockHeartBeatEntity.getReentryCount()));
                 return true;
             } else {
@@ -60,30 +63,34 @@ public class LockServiceImpl implements LockService {
             long now = SystemClock.now();
             CountDownLatch countDownLatch = new CountDownLatch(1);
             AtomicBoolean isLock = new AtomicBoolean(false);
-            new Thread(() -> {
-                Long retryTime;
-                while ((retryTime = SystemClock.now() - now) < LockConfigUtil.getMaxRetryTime()) {
-                    Object result = jedis(lockManager).eval(LuaUtils.getLockLuaStr(), Collections.singletonList(lockEntity.get_key()), Lists.newArrayList(lockEntity.getKey(), lockEntity.getExpireTime().toString()));
-                    if (result.equals(Constants.LUA_RES_OK)) {
-                        LoggerUtil.printlnLog(this.getClass(), String.format("thread = %s ,key = %s,retry lock success , retry time = %d ms", Thread.currentThread().getName(), lockEntity.get_key(), retryTime));
-                        countDownLatch.countDown();
-                        isLock.getAndSet(true);
-                        allocFuture(executorService, lockTimerEntityMap, lockManager, lockEntity);
-                        break;
+            if (LockConfigUtil.getRenewType().equals("redis")) {
+                RenewLockHandler renewLockHandler = new RenewLockHandler(countDownLatch, isLock, lockManager, lockEntity, this);
+                final RenewLockHandler finalRenewLockHandler = renewLockHandler;
+                getRetryExecutorThread(lockManager).submit(() -> {
+                    LoggerUtil.printlnLog(this.getClass(), "channel = " + Constants.CHANNEL_PREFIX + lockEntity.getKey() + " begin subscribe");
+                    jedis(lockManager).subscribe(finalRenewLockHandler, Constants.CHANNEL_PREFIX + lockEntity.getKey());
+                });
+                if (renewLockHandler.isSubscribed()) {
+                    try {
+                        countDownLatch.await(LockConfigUtil.getMaxRetryTime(), TimeUnit.MICROSECONDS);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    } finally {
+                        LoggerUtil.printlnLog(this.getClass(), "channel = " + Constants.CHANNEL_PREFIX + lockEntity.getKey() + " begin unsubscribe");
+                        finalRenewLockHandler.unsubscribe(Constants.CHANNEL_PREFIX + lockEntity.getKey());
+                        //help GC
+                        renewLockHandler = null;
                     }
+                } else {
+                    return false;
                 }
-                if (!isLock.get()) {
-                    LoggerUtil.printlnLog(this.getClass(), String.format("thread = %s ,key = %s,retry lock fail , Record request", Thread.currentThread().getName(), lockEntity.get_key()));
-                    ConcurrentHashMap<String, LockEntity> retryLockMap = retryLockMap(lockManager);
-                    retryLockMap.put(lockEntity.get_key(), lockEntity);
-                    lockManager.handlerFailLockProcessor(lockEntity);
-                    countDownLatch.countDown();
+            } else {
+                getRetryExecutorThread(lockManager).submit(new RetryLockHandler(this, countDownLatch, lockManager, lockEntity, now, isLock));
+                try {
+                    countDownLatch.await();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
-            }).start();
-            try {
-                countDownLatch.await();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
             }
             return isLock.get();
         }
@@ -108,6 +115,9 @@ public class LockServiceImpl implements LockService {
                 lockHeartBeatEntity.shutdown();
                 lockTimerEntityMap.remove(_key);
                 if (result.equals(Constants.LUA_RES_OK)) {
+                    if (LockConfigUtil.getRenewType().equals("redis")) {
+                        jedis(lockManager).publish(Constants.CHANNEL_PREFIX + lockHeartBeatEntity.getKey(), "unregister");
+                    }
                     LoggerUtil.printlnLog(this.getClass(), String.format("key = %s ,unlock success", _key));
                 } else {
                     LoggerUtil.printlnLog(this.getClass(), String.format("key = %s,not exist", _key));
@@ -125,6 +135,137 @@ public class LockServiceImpl implements LockService {
 
     private ConcurrentHashMap<String, LockEntity> retryLockMap(LockManager lockManager) {
         return lockManager.getRetryLockMap();
+    }
+
+    private ExecutorService getRetryExecutorThread(LockManager lockManager) {
+        return lockManager.getRetryLockExecutorService();
+    }
+
+    private ConcurrentHashMap<String, LockHeartBeatEntity> lockTimerEntityMap(LockManager lockManager) {
+        return lockManager.getLockTimerEntityConcurrentHashMap();
+    }
+
+    private ScheduledExecutorService executorService(LockManager lockManager) {
+        return lockManager.getLockConfig().getSchedule();
+    }
+
+
+    public static class RenewLockHandler extends JedisPubSub {
+        private CountDownLatch countDownLatch;
+        private AtomicBoolean isLock;
+        private LockManager lockManager;
+        private LockEntity lockEntity;
+        private LockServiceImpl lockService;
+
+
+        public RenewLockHandler(CountDownLatch countDownLatch, AtomicBoolean isLock, LockManager lockManager, LockEntity lockEntity, LockServiceImpl lockService) {
+            this.countDownLatch = countDownLatch;
+            this.isLock = isLock;
+            this.lockManager = lockManager;
+            this.lockEntity = lockEntity;
+            this.lockService = lockService;
+        }
+
+        private JedisClient jedis(LockManager lockManager) {
+            return lockManager.getLockConfig().getClient();
+        }
+
+        private ConcurrentHashMap<String, LockEntity> retryLockMap(LockManager lockManager) {
+            return lockManager.getRetryLockMap();
+        }
+
+        @Override
+        public void proceed(Connection client, String... channels) {
+            super.proceed(client, channels);
+        }
+
+        @Override
+        public boolean isSubscribed() {
+            return super.isSubscribed();
+        }
+
+        @Override
+        public void ping() {
+            super.ping();
+        }
+
+        @Override
+        public int getSubscribedChannels() {
+            return super.getSubscribedChannels();
+        }
+
+        @Override
+        public void onMessage(String channel, String message) {
+            if (channel.equals(Constants.CHANNEL_PREFIX + lockEntity.getKey()) && message.equals("unregister")) {
+                Object result = jedis(lockManager).eval(LuaUtils.getLockLuaStr(), Collections.singletonList(lockEntity.get_key()), Lists.newArrayList(lockEntity.getKey(), lockEntity.getExpireTime().toString()));
+                if (result.equals(Constants.LUA_RES_OK)) {
+                    LoggerUtil.printlnLog(this.getClass(), String.format("pubsub = %s ,key = %s,retry lock success", this.getClass().getSimpleName(), lockEntity.get_key()));
+                    isLock.getAndSet(true);
+                    countDownLatch.countDown();
+                    lockService.allocFuture(lockManager, lockEntity);
+                    unsubscribe(Constants.CHANNEL_PREFIX + lockEntity.getKey());
+                }
+            }
+        }
+    }
+
+
+    static class RetryLockHandler implements Runnable {
+        private LockServiceImpl lockService;
+        private CountDownLatch countDownLatch;
+        private LockManager lockManager;
+        private LockEntity lockEntity;
+        private long now;
+        private AtomicBoolean isLock;
+
+        /**
+         * Instantiates a new Retry lock handler.
+         *
+         * @param lockService    the lock service
+         * @param countDownLatch the count down latch
+         * @param lockManager    the lock manager
+         * @param lockEntity     the lock entity
+         * @param now            the now
+         */
+        public RetryLockHandler(LockServiceImpl lockService, CountDownLatch countDownLatch, LockManager lockManager, LockEntity lockEntity, long now, AtomicBoolean isLock) {
+            this.lockService = lockService;
+            this.countDownLatch = countDownLatch;
+            this.lockManager = lockManager;
+            this.lockEntity = lockEntity;
+            this.now = now;
+            this.isLock = isLock;
+        }
+
+
+        private JedisClient jedis(LockManager lockManager) {
+            return lockManager.getLockConfig().getClient();
+        }
+
+        private ConcurrentHashMap<String, LockEntity> retryLockMap(LockManager lockManager) {
+            return lockManager.getRetryLockMap();
+        }
+
+        @Override
+        public void run() {
+            Long retryTime;
+            while ((retryTime = SystemClock.now() - now) < LockConfigUtil.getMaxRetryTime()) {
+                Object result = jedis(lockManager).eval(LuaUtils.getLockLuaStr(), Collections.singletonList(lockEntity.get_key()), Lists.newArrayList(lockEntity.getKey(), lockEntity.getExpireTime().toString()));
+                if (result.equals(Constants.LUA_RES_OK)) {
+                    LoggerUtil.printlnLog(this.getClass(), String.format("thread = %s ,key = %s,retry lock success , retry time = %d ms", Thread.currentThread().getName(), lockEntity.get_key(), retryTime));
+                    countDownLatch.countDown();
+                    isLock.getAndSet(true);
+                    lockService.allocFuture(lockManager, lockEntity);
+                    break;
+                }
+            }
+            if (!isLock.get()) {
+                LoggerUtil.printlnLog(this.getClass(), String.format("thread = %s ,key = %s,retry lock fail , Record request", Thread.currentThread().getName(), lockEntity.get_key()));
+                ConcurrentHashMap<String, LockEntity> retryLockMap = retryLockMap(lockManager);
+                retryLockMap.put(lockEntity.get_key(), lockEntity);
+                lockManager.handlerFailLockProcessor(lockEntity);
+                countDownLatch.countDown();
+            }
+        }
     }
 
 

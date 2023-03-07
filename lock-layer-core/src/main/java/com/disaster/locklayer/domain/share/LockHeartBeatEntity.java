@@ -26,6 +26,11 @@ public class LockHeartBeatEntity {
     private volatile LongAdder expireCount = new LongAdder();
 
     /**
+     * lock key
+     */
+    private String key;
+
+    /**
      * The number of times elapsed
      */
     private volatile AtomicBoolean shutdown = new AtomicBoolean(false);
@@ -207,4 +212,22 @@ public class LockHeartBeatEntity {
         return this;
     }
 
+    /**
+     * Gets key.
+     *
+     * @return the key
+     */
+    public String getKey() {
+        return key;
+    }
+
+    /**
+     * Sets key.
+     *
+     * @param key the key
+     */
+    public LockHeartBeatEntity setKey(String key) {
+        this.key = key;
+        return this;
+    }
 }
