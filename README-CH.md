@@ -2,27 +2,26 @@
     <img width="400" src="https://gitee.com/d__isaster/cornucopia/raw/master/img/lock%20layer.png">
 </p>
 
-[Chinese]()
 
-## 🔥Features
-- 🚀 Out of the box
-- 🍄 Automatic relocking
-- 🔆 Lock retry
-- ⛏️ Reentrant lock
-- ⚙️ Declarative locking
-- ..........（To be continued）
-## 🖥 Environment Required
+## 🔥特性（Features）
+- 🚀 开箱即用
+- 🍄 自动续锁
+- 🔆 锁重试
+- ⛏️ 可重入锁
+- ⚙️ 声明式加锁
+- ..........（待续）
+## 🖥 环境要求 （Environment Required）
 - redis v6.0.0+
 - jdk 1.8+
 - ......
 
-## 🌎 Architecture
+## 🌎 整体架构 （Architecture）
 
-....（To be continued）
+....（待续）
 
-## ☀️ Quick Start
+## ☀️ 快速开始（Quick Start）
 
-### 💊 Dependency
+### 💊 依赖 (Dependency)
 #### java、spring
 ```java 
 <dependency>
@@ -39,16 +38,16 @@
     <version>1.1.0</version>
 </dependency>
 ```
-### 🛁 USE
-#### java primitive
+### 🛁 使用
+#### java原生
 
 ```java
-# About Configuration 
+#配置相关
 LockManager lockManager = LockManager.create(LockConfig.build().setClient(new JedisClient(new JedisPool("127.0.0.1", 6379, null, "123456"))));
 RedisLockLayerLayer redisLockLayer = new RedisLockLayerLayer(lockManager);
 ```
 ```java
-#Using
+#使用
 Thread thread = new Thread(() -> {
             redisLockLayer.tryLock("test_key");
             try {
@@ -74,13 +73,13 @@ Thread thread = new Thread(() -> {
 ```
 
 #### spring
-....（To be continued）
+....（待续）
 #### springboot
 
-##### 1.Configuration
+##### 1.配置
 
 ```yaml
-# If the lock layer reuses the configuration of spring-redis, the normal use of spring-redis will not be affected
+#lock layer只是复用了spring-redis的配置并不会影响其spring-redis 的正常使用
 spring:
   redis:
     port: 6379
@@ -97,20 +96,20 @@ spring:
 lock:
   layer:
     declaration:
-      enable: true # This configuration enables declarative locking. The default value is false
+      enable: true #此配置用来开启声明式加锁功能，默认为false
 ```
-##### 2.Using
+##### 2.使用
 
-###### 1.Programmatic use
+###### 1.编程式使用
 
-Just DI LockLayer into the class to use
+只需DI LockLayer 到类中即可使用
 
 ```java
 @Autowired
 private LockLayer redisLockLayer;
 ```
 
-###### 2.Declarative use
+###### 2.声明式使用
 
 ```java
 @Component
@@ -126,7 +125,7 @@ public class Lock {
 
     }
 
-    //When an exception is thrown in a annotated method, the lock layer automatically releases the lock
+ #当注解标注的方法中抛异常，lock layer 会自动释放锁
     @LockLayer(key = "test_key", expireTime = 10)
     public void lockException() {
         throw new RuntimeException();
@@ -181,26 +180,26 @@ public class LockLayerApplication {
     }
 }
 ```
-##  💐 Configuration
+##  💐 配置 （Configuration）
 
-If the lock layer is not dynamically configured, the default lock layer is used
+如果不进行动态配置则会使用lock layer默认的配置
 
 ```yaml
-#Global Settings, it should be noted that this yml file name must be lock-layer-extend.yml, if it is any other file name, the lock layer will not be able to load its configuration
+#全局设置，需要注意的是，此yml文件名必须是lock-layer-extend.yml，如果是其他文件名，lock layer将无法加载其配置
 lock:
   layer:
-    max_expire_count: 3 # The maximum number of consecutive locks was set
-    max_retry_time: 30000 # The maximum lock retry time, after which the lock fails
-    max_expire_time : 60 # Maximum renewal time, which is the same as max_expire_count
-    max_reentry_count: 3 # The number of reentrants allowed
+    max_expire_count: 3 #配置最大续锁的次数
+    max_retry_time: 30000 #最大锁重试时间，超过此时间则会锁失败
+    max_expire_time : 60 #最大续锁时间，此配置与max_expire_count共同
+    max_reentry_count: 3 #可重入次数
     log:
-      enable: true # Enable lock layer logs. This function is disabled by default
+      enable: true #开启lock layer日志,默认不开启
 ```
-##  🧽 Extend Interface
-The lock layer provides two interfaces, LockHeatProcessor and LockProcessor, to allow developers to expand operations when locks are successfully added, fail to be added, and when the lock duration times out
+##  🧽 扩展接口 （Extend Api）
+lock layer 提供LockHeatProcessor、LockProcessor两个接口让开发人员可以在加锁成功、失败、锁续时超时时进行扩展操作
 
 ```java
-//LockHeatProcessor Indicates the interface for subsequent operations performed when the lock timeout occurs
+#LockHeatProcessor接口作用锁续时超时时进行的后续操作扩展接口
 @Service
 public class LockHeatProcessorImpl implements LockHeatProcessor {
     @Override
@@ -211,7 +210,7 @@ public class LockHeatProcessorImpl implements LockHeatProcessor {
 ```
 
 ```java
-//LockProcessor Indicates the extension interface for subsequent operations when a lock succeeds or fails
+#LockProcessor接口作用加锁成功、失败时的后续操作扩展接口
 @Service
 public class LockProcessorImpl implements LockProcessor {
     @Override
