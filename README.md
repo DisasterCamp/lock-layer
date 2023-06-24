@@ -193,6 +193,8 @@ lock:
     max_retry_time: 30000 # The maximum lock retry time, after which the lock fails
     max_expire_time : 60 # Maximum renewal time, which is the same as max_expire_count
     max_reentry_count: 3 # The number of reentrants allowed
+    renew:
+      type: redis # Whether to retry locks in pub/sub mode. Thread pool is used by default
     log:
       enable: true # Enable lock layer logs. This function is disabled by default
 ```
