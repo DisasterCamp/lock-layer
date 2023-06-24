@@ -2,7 +2,7 @@
     <img width="400" src="https://gitee.com/d__isaster/cornucopia/raw/master/img/lock%20layer.png">
 </p>
 
-[Chinese]()
+[Chinese](https://github.com/DisasterCamp/lock-layer/blob/master/README-CH.md)
 
 ## 🔥Features
 - 🚀 Out of the box
