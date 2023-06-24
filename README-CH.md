@@ -192,6 +192,8 @@ lock:
     max_retry_time: 30000 #最大锁重试时间，超过此时间则会锁失败
     max_expire_time : 60 #最大续锁时间，此配置与max_expire_count共同
     max_reentry_count: 3 #可重入次数
+    renew:
+      type: redis #是否以pub/sub模式重试锁定。默认情况下使用线程池
     log:
       enable: true #开启lock layer日志,默认不开启
 ```
