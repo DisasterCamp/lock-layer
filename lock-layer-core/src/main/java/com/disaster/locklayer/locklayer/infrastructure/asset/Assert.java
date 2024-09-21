@@ -1,4 +1,4 @@
-package com.disaster.locklayer.infrastructure.asset;
+package com.disaster.locklayer.locklayer.infrastructure.asset;
 
 import org.apache.commons.lang3.StringUtils;
 

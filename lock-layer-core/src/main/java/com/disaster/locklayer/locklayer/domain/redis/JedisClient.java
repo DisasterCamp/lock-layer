@@ -1,4 +1,4 @@
-package com.disaster.locklayer.domain.redis;
+package com.disaster.locklayer.locklayer.domain.redis;
 
 import com.disaster.locklayer.infrastructure.utils.LoggerUtil;
 import redis.clients.jedis.Jedis;

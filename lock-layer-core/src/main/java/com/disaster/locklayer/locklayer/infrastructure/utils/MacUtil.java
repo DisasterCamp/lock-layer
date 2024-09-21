@@ -1,4 +1,4 @@
-package com.disaster.locklayer.infrastructure.utils;
+package com.disaster.locklayer.locklayer.infrastructure.utils;
 
 import lombok.SneakyThrows;
 

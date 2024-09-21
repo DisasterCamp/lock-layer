@@ -1,4 +1,4 @@
-package com.disaster.locklayer.infrastructure.config;
+package com.disaster.locklayer.locklayer.infrastructure.config;
 
 import com.disaster.locklayer.domain.redis.JedisClient;
 import org.apache.commons.lang3.concurrent.BasicThreadFactory;

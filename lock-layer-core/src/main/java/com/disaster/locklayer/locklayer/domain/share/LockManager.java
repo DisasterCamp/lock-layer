@@ -1,7 +1,9 @@
-package com.disaster.locklayer.domain.share;
+package com.disaster.locklayer.locklayer.domain.share;
 
 import com.disaster.locklayer.domain.service.LockHeatProcessor;
 import com.disaster.locklayer.domain.service.LockProcessor;
+import com.disaster.locklayer.domain.share.LockEntity;
+import com.disaster.locklayer.domain.share.LockHeartBeatEntity;
 import com.disaster.locklayer.infrastructure.config.LockConfig;
 import com.disaster.locklayer.infrastructure.constant.Constants;
 import com.disaster.locklayer.infrastructure.hook.ShutDownHook;
@@ -35,12 +37,12 @@ public class LockManager {
     /**
      * Thread container
      */
-    private volatile ConcurrentHashMap<String, LockHeartBeatEntity> lockTimerEntityConcurrentHashMap = new ConcurrentHashMap<>();
+    private volatile ConcurrentHashMap<String, com.disaster.locklayer.domain.share.LockHeartBeatEntity> lockTimerEntityConcurrentHashMap = new ConcurrentHashMap<>();
 
     /**
      * The retry lock queue in the process
      */
-    private volatile ConcurrentHashMap<String, LockEntity> retryLockMap = new ConcurrentHashMap<>();
+    private volatile ConcurrentHashMap<String, com.disaster.locklayer.domain.share.LockEntity> retryLockMap = new ConcurrentHashMap<>();
 
     /**
      * lock processor container
@@ -76,11 +78,11 @@ public class LockManager {
     public LockManager() {
         executorService.execute(() -> {
             while (!Thread.currentThread().isInterrupted()) {
-                Set<Map.Entry<String, LockHeartBeatEntity>> entries = lockTimerEntityConcurrentHashMap.entrySet();
-                Iterator<Map.Entry<String, LockHeartBeatEntity>> iterator = entries.iterator();
+                Set<Map.Entry<String, com.disaster.locklayer.domain.share.LockHeartBeatEntity>> entries = lockTimerEntityConcurrentHashMap.entrySet();
+                Iterator<Map.Entry<String, com.disaster.locklayer.domain.share.LockHeartBeatEntity>> iterator = entries.iterator();
                 while (iterator.hasNext()) {
-                    Map.Entry<String, LockHeartBeatEntity> next = iterator.next();
-                    LockHeartBeatEntity value = next.getValue();
+                    Map.Entry<String, com.disaster.locklayer.domain.share.LockHeartBeatEntity> next = iterator.next();
+                    com.disaster.locklayer.domain.share.LockHeartBeatEntity value = next.getValue();
                     if ((value.getExpireCount().intValue() >= LockConfigUtil.getMaxExpireCount() * getAnInt(value))
                             || (value.getLockTime() - SystemClock.now() >= (LockConfigUtil.getMaxExpireTime() * (getAnInt(value))))) {
                         LoggerUtil.println(Thread.currentThread().getClass(), String.format("key = %s, exclude max time,begin release", next.getKey()));
@@ -121,7 +123,7 @@ public class LockManager {
         LockManager.executorService = executorService;
     }
 
-    private int getAnInt(LockHeartBeatEntity value) {
+    private int getAnInt(com.disaster.locklayer.domain.share.LockHeartBeatEntity value) {
         return value.getReentryCount().intValue() > 1 ? value.getReentryCount().intValue() : 1;
     }
 
@@ -173,7 +175,7 @@ public class LockManager {
      *
      * @return the lock timer entity concurrent hash map
      */
-    public ConcurrentHashMap<String, LockHeartBeatEntity> getLockTimerEntityConcurrentHashMap() {
+    public ConcurrentHashMap<String, com.disaster.locklayer.domain.share.LockHeartBeatEntity> getLockTimerEntityConcurrentHashMap() {
         return lockTimerEntityConcurrentHashMap;
     }
 
@@ -183,7 +185,7 @@ public class LockManager {
      * @param key the key
      * @return the lock timer entity
      */
-    public LockHeartBeatEntity getLockTimerEntity(String key) {
+    public com.disaster.locklayer.domain.share.LockHeartBeatEntity getLockTimerEntity(String key) {
         return lockTimerEntityConcurrentHashMap.get(Constants.KEY_PREFIX + key);
     }
 
@@ -203,7 +205,7 @@ public class LockManager {
      *
      * @return the retry lock queue
      */
-    public ConcurrentHashMap<String, LockEntity> getRetryLockMap() {
+    public ConcurrentHashMap<String, com.disaster.locklayer.domain.share.LockEntity> getRetryLockMap() {
         return retryLockMap;
     }
 
@@ -267,7 +269,7 @@ public class LockManager {
      *
      * @param lockEntity the lock entity
      */
-    public void handlerFailLockProcessor(LockEntity lockEntity) {
+    public void handlerFailLockProcessor(com.disaster.locklayer.domain.share.LockEntity lockEntity) {
         if (Objects.nonNull(this.lockProcessorList) && !this.lockProcessorList.isEmpty()) {
             for (LockProcessor lockProcessor : lockProcessorList) {
                 lockProcessor.failLockProcessor(lockEntity);

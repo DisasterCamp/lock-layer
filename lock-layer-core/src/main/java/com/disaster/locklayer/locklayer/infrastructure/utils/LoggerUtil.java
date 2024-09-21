@@ -1,6 +1,7 @@
-package com.disaster.locklayer.infrastructure.utils;
+package com.disaster.locklayer.locklayer.infrastructure.utils;
 
 import com.disaster.locklayer.infrastructure.enums.LogLevel;
+import com.disaster.locklayer.infrastructure.utils.LockConfigUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

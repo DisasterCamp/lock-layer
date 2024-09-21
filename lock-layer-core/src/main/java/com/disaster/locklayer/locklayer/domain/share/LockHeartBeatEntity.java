@@ -1,4 +1,4 @@
-package com.disaster.locklayer.domain.share;
+package com.disaster.locklayer.locklayer.domain.share;
 
 import com.disaster.locklayer.infrastructure.utils.MacUtil;
 import com.disaster.locklayer.infrastructure.utils.SystemClock;

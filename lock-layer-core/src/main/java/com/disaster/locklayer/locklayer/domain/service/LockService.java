@@ -1,4 +1,4 @@
-package com.disaster.locklayer.domain.service;
+package com.disaster.locklayer.locklayer.domain.service;
 
 import com.disaster.locklayer.domain.share.LockEntity;
 import com.disaster.locklayer.domain.share.LockHeartBeatEntity;

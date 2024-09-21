@@ -1,4 +1,4 @@
-package com.disaster.locklayer.domain.service.impl;
+package com.disaster.locklayer.locklayer.domain.service.impl;
 
 import com.disaster.locklayer.domain.redis.JedisClient;
 import com.disaster.locklayer.domain.service.LockService;

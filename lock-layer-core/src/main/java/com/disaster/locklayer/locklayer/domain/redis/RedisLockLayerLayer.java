@@ -1,5 +1,6 @@
-package com.disaster.locklayer.domain.redis;
+package com.disaster.locklayer.locklayer.domain.redis;
 
+import com.disaster.locklayer.domain.redis.JedisClient;
 import com.disaster.locklayer.domain.service.LockService;
 import com.disaster.locklayer.domain.service.impl.LockServiceImpl;
 import com.disaster.locklayer.domain.share.LockEntity;

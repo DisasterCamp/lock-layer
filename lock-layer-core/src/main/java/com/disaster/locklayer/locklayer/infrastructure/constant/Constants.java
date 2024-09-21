@@ -1,4 +1,4 @@
-package com.disaster.locklayer.infrastructure.constant;
+package com.disaster.locklayer.locklayer.infrastructure.constant;
 
 
 /**
