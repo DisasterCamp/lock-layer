@@ -4,6 +4,9 @@ import com.disaster.locklayer.domain.share.LockHeartBeatEntity;
 
 /**
  * The interface Lock heat processor.
+ *
+ * @author disaster
+ * @version 1.0
  */
 public interface LockHeatProcessor {
     /**
